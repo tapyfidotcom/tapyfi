@@ -1,0 +1,77 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  font-family: "Montserrat", serif !important;
+  font-weight: 500;
+}
+
+:root {
+  --background: 143 0% 100%;
+  --foreground: 143 0% 10%;
+  --card: 143 0% 100%;
+  --card-foreground: 143 0% 15%;
+  --popover: 143 0% 100%;
+  --popover-foreground: 143 95% 10%;
+  --primary: 143 47.9% 27.8%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 143 10% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 105 10% 95%;
+  --muted-foreground: 143 0% 40%;
+  --accent: 105 10% 90%;
+  --accent-foreground: 143 0% 15%;
+  --destructive: 0 50% 50%;
+  --destructive-foreground: 143 0% 100%;
+  --border: 143 20% 82%;
+  --input: 143 20% 50%;
+  --ring: 143 47.9% 27.8%;
+  --radius: 0.7rem;
+}
+.dark {
+  --background: 143 10% 10%;
+  --foreground: 143 0% 100%;
+  --card: 143 0% 10%;
+  --card-foreground: 143 0% 100%;
+  --popover: 143 10% 5%;
+  --popover-foreground: 143 0% 100%;
+  --primary: 143 47.9% 27.8%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 143 10% 20%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 105 10% 25%;
+  --muted-foreground: 143 0% 65%;
+  --accent: 105 10% 25%;
+  --accent-foreground: 143 0% 95%;
+  --destructive: 0 50% 50%;
+  --destructive-foreground: 143 0% 100%;
+  --border: 143 20% 50%;
+  --input: 143 20% 50%;
+  --ring: 143 47.9% 27.8%;
+  --radius: 0.7rem;
+}
+
+
+
+.cl-cardBox{
+  box-shadow: none !important;
+}
+
+input {
+  height: 40px !important;
+  box-shadow: none !important;
+  border: 1px solid gray !important;
+}
+.cl-formButtonPrimary{
+  background-color: hsl(var(--primary)) !important;
+  height: 40px !important;
+}
+
+table{
+  border: 1px solid rgb(187, 187, 187) !important;
+  border-radius: 5px !important;
+}
