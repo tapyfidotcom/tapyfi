@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
+
 * {
   box-sizing: border-box;
   font-family: "Montserrat", serif !important;
@@ -76,7 +76,7 @@ table{
   border: 1px solid rgb(187, 187, 187) !important;
   border-radius: 5px !important;
 }
-=======
+
 
 :root  {
   --background: 158 0% 100%;
@@ -122,5 +122,3 @@ table{
   --ring: 158 64.4% 51.6%;
   --radius: 0.75rem;
 }
-
->>>>>>> ecf6059596a4cec4d2eccea394c0b02fd1497f05
