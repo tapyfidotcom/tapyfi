@@ -4,6 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 * {
   box-sizing: border-box;
   font-family: "Montserrat", serif !important;
@@ -75,3 +76,51 @@ table{
   border: 1px solid rgb(187, 187, 187) !important;
   border-radius: 5px !important;
 }
+=======
+
+:root  {
+  --background: 158 0% 100%;
+  --foreground: 158 0% 10%;
+  --card: 158 0% 100%;
+  --card-foreground: 158 0% 15%;
+  --popover: 158 0% 100%;
+  --popover-foreground: 158 95% 10%;
+  --primary: 158 64.4% 51.6%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 158 10% 90%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 120 10% 95%;
+  --muted-foreground: 158 0% 40%;
+  --accent: 120 10% 90%;
+  --accent-foreground: 158 0% 15%;
+  --destructive: 0 50% 50%;
+  --destructive-foreground: 158 0% 100%;
+  --border: 158 20% 82%;
+  --input: 158 20% 50%;
+  --ring: 158 64.4% 51.6%;
+  --radius: 0.75rem;
+}
+.dark  {
+  --background: 158 10% 10%;
+  --foreground: 158 0% 100%;
+  --card: 158 0% 10%;
+  --card-foreground: 158 0% 100%;
+  --popover: 158 10% 5%;
+  --popover-foreground: 158 0% 100%;
+  --primary: 158 64.4% 51.6%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 158 10% 20%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 120 10% 25%;
+  --muted-foreground: 158 0% 65%;
+  --accent: 120 10% 25%;
+  --accent-foreground: 158 0% 95%;
+  --destructive: 0 50% 50%;
+  --destructive-foreground: 158 0% 100%;
+  --border: 158 20% 50%;
+  --input: 158 20% 50%;
+  --ring: 158 64.4% 51.6%;
+  --radius: 0.75rem;
+}
+
+>>>>>>> ecf6059596a4cec4d2eccea394c0b02fd1497f05
