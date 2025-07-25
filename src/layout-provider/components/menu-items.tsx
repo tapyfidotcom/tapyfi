@@ -9,7 +9,6 @@ import {
   Gem,
   LayoutDashboardIcon,
   List,
-  ListCheck,
   Map,
   ShoppingBag,
   ShoppingCart,
@@ -132,12 +131,17 @@ function MenuItems({ openMenuItems, setOpenMenuItems }: IMenuItems) {
     },
   ];
 
-  if (!user.is_seller) {
-    userRoles = userRoles.filter((role) => role.value !== "seller");
-  }
-
-  if (!user.is_admin) {
-    userRoles = userRoles.filter((role) => role.value !== "admin");
+  // ---- Prevent error when user is null -----
+  if (user) {
+    if (!user.is_seller) {
+      userRoles = userRoles.filter((role) => role.value !== "seller");
+    }
+    if (!user.is_admin) {
+      userRoles = userRoles.filter((role) => role.value !== "admin");
+    }
+  } else {
+    // If user is not loaded, show only User role (optional, or show nothing/spinner)
+    userRoles = userRoles.filter((role) => role.value === "user");
   }
 
   // just for testing
@@ -147,9 +151,21 @@ function MenuItems({ openMenuItems, setOpenMenuItems }: IMenuItems) {
     } else if (selectedRole === "seller") {
       return sellerMenuItems;
     }
-
     return adminMenuItems;
   }, [selectedRole]);
+
+  // ----- Handle null user -----
+  if (!user) {
+    return (
+      <Sheet open={openMenuItems} onOpenChange={() => setOpenMenuItems(false)}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>Loading...</SheetTitle>
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
+    );
+  }
 
   return (
     <Sheet open={openMenuItems} onOpenChange={() => setOpenMenuItems(false)}>
@@ -169,13 +185,12 @@ function MenuItems({ openMenuItems, setOpenMenuItems }: IMenuItems) {
               {userRoles.map((role, index) => (
                 <div className="flex items-center space-x-2" key={index}>
                   <RadioGroupItem value={role.value} id={role.value} />
-                  <Label htmlFor="r1">{role.name}</Label>
+                  <Label htmlFor={role.value}>{role.name}</Label>
                 </div>
               ))}
             </RadioGroup>
           </div>
         )}
-
         <div className="flex flex-col gap-10 mt-10">
           {menuItemsToRender.map((item, index) => (
             <div
