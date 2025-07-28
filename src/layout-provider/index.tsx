@@ -19,6 +19,13 @@ function CustomLayout({ children }: { children: React.ReactNode }) {
 
   const isHomePage = pathname === "/";
 
+  // For dynamic username pages (like /scientificsamie), let them render normally
+  const isDynamicUsernamePage = 
+    pathname !== "/" && 
+    !isPrivate && 
+    !isAuthPage && 
+    !pathname.startsWith("/api");
+
   // For home page, return children without any layout wrapper
   if (isHomePage) {
     return <>{children}</>;
@@ -31,6 +38,11 @@ function CustomLayout({ children }: { children: React.ReactNode }) {
         {children}
       </div>
     );
+  }
+
+  // For dynamic username pages, return children directly
+  if (isDynamicUsernamePage) {
+    return <>{children}</>;
   }
 
   if (isPrivate) {
