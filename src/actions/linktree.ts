@@ -5,7 +5,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { CreateLinktreeProfile, CreateLinktreeLink, LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
 import { validateUsername } from "@/lib/link-generators";
 
-export const createLinktreeProfile = async (profileData: CreateLinktreeProfile) => {
+export const createLinktreeProfile = async (profileData: CreateLinktreeProfile & { background_settings?: string }) => {
   try {
     const clerkUser = await currentUser();
     if (!clerkUser) {
@@ -51,7 +51,7 @@ export const createLinktreeProfile = async (profileData: CreateLinktreeProfile) 
       return { success: false, message: "You already have a linktree profile" };
     }
 
-    // Create profile
+    // Create profile with background settings
     const { data, error } = await supabase
       .from("linktree_profiles")
       .insert({
@@ -63,7 +63,8 @@ export const createLinktreeProfile = async (profileData: CreateLinktreeProfile) 
         company_logo: profileData.company_logo,
         theme_color: profileData.theme_color || '#10b981',
         background_color: profileData.background_color || '#ffffff',
-        text_color: profileData.text_color || '#000000'
+        text_color: profileData.text_color || '#000000',
+        background_settings: profileData.background_settings || '{"type":"solid","color":"#ffffff","speed":1,"intensity":1}'
       })
       .select()
       .single();
@@ -78,7 +79,7 @@ export const createLinktreeProfile = async (profileData: CreateLinktreeProfile) 
   }
 };
 
-export const updateLinktreeProfile = async (profileData: Partial<CreateLinktreeProfile>) => {
+export const updateLinktreeProfile = async (profileData: Partial<CreateLinktreeProfile> & { background_settings?: string }) => {
   try {
     const clerkUser = await currentUser();
     if (!clerkUser) {
@@ -129,10 +130,13 @@ export const updateLinktreeProfile = async (profileData: Partial<CreateLinktreeP
       profileData.username = profileData.username.toLowerCase();
     }
 
-    // Update profile
+    // Update profile including background settings
     const { data, error } = await supabase
       .from("linktree_profiles")
-      .update(profileData)
+      .update({
+        ...profileData,
+        background_settings: profileData.background_settings
+      })
       .eq("id", linktreeProfile.id)
       .select()
       .single();

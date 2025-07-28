@@ -13,6 +13,8 @@ export interface LinktreeProfile {
   text_color: string;
   is_active: boolean;
   view_count: number;
+  background_settings?: string; // JSON stringified BackgroundSettings
+  linktree_links?: LinktreeLink[];
 }
 
 export interface LinktreeLink {
@@ -59,4 +61,14 @@ export interface CreateLinktreeLink {
   url: string;
   icon?: string;
   display_order?: number;
+}
+
+export interface BackgroundSettings {
+  type: 'solid' | 'darkveil' | 'faultyterminal' | 'galaxy' | 'hyperspeed' | 'iridescence' | 'lightrays' | 'particles' | 'ripplegrid' | 'silk';
+  color: string;
+  speed: number;
+  intensity: number;
+  preset?: string;
+  scale?: number;
+  direction?: number;
 }
