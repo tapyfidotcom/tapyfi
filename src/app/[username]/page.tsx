@@ -4,13 +4,14 @@ import { getPublicLinktreeProfile } from "@/actions/linktree";
 import PublicLinktree from "@/components/linktree/public-linktree";
 
 interface PublicPageProps {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 }
 
 export default async function PublicLinktreePage({ params }: PublicPageProps) {
-  const { username } = params;
+  // Await the params in Next.js 15
+  const { username } = await params;
   
   const response = await getPublicLinktreeProfile(username);
   
@@ -22,7 +23,8 @@ export default async function PublicLinktreePage({ params }: PublicPageProps) {
 }
 
 export async function generateMetadata({ params }: PublicPageProps) {
-  const { username } = params;
+  // Await the params in generateMetadata as well
+  const { username } = await params;
   const response = await getPublicLinktreeProfile(username);
   
   if (!response.success || !response.data) {

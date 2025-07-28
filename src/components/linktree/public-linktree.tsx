@@ -4,6 +4,9 @@ import React from "react";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
 import { platformConfigs } from "@/lib/platform-configs";
 import { ExternalLink, Eye } from "lucide-react";
+import DarkVeil from "@/components/backgrounds/DarkVeil/DarkVeil";
+import Silk from "@/components/backgrounds/Silk/Silk";
+import EnhancedProfilePicture from "@/components/ui/enhanced-profile-picture";
 
 interface PublicLinktreeProps {
   profile: LinktreeProfile & { linktree_links: LinktreeLink[] };
@@ -15,53 +18,47 @@ export default function PublicLinktree({ profile }: PublicLinktreeProps) {
     window.open(link.url, '_blank', 'noopener,noreferrer');
   };
 
-  const styles = {
-    backgroundColor: profile.background_color,
-    color: profile.text_color,
-  };
-
-  const buttonStyle = {
-    backgroundColor: profile.theme_color,
-    color: '#ffffff',
+  const renderBackground = () => {
+    // You can extend this to support different background types from profile settings
+    return (
+      <div 
+        className="absolute inset-0"
+        style={{ backgroundColor: profile.background_color }}
+      />
+    );
   };
 
   return (
-    <div 
-      className="min-h-screen w-full flex flex-col items-center justify-center p-4"
-      style={styles}
-    >
-      <div className="w-full max-w-md mx-auto space-y-6">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background */}
+      {renderBackground()}
+      
+      {/* Content */}
+      <div className="w-full max-w-md mx-auto space-y-6 relative z-10">
         {/* Profile Header */}
         <div className="text-center space-y-4">
-          {/* Profile Picture */}
-          {profile.profile_picture && (
-            <div className="w-24 h-24 mx-auto rounded-full overflow-hidden border-4 border-white/20 shadow-lg">
-              <img 
-                src={profile.profile_picture} 
-                alt={profile.display_name || profile.username}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          
-          {/* Company Logo */}
-          {profile.company_logo && (
-            <div className="w-16 h-16 mx-auto">
-              <img 
-                src={profile.company_logo} 
-                alt="Logo"
-                className="w-full h-full object-contain"
-              />
-            </div>
-          )}
+          {/* Enhanced Profile Picture with Company Logo */}
+          <div className="flex justify-center">
+            <EnhancedProfilePicture
+              profilePicture={profile.profile_picture}
+              companyLogo={profile.company_logo}
+              size="xl"
+            />
+          </div>
 
           {/* Name and Bio */}
           <div>
-            <h1 className="text-2xl font-bold mb-2">
+            <h1 
+              className="text-2xl font-bold mb-2"
+              style={{ color: profile.text_color }}
+            >
               {profile.display_name || `@${profile.username}`}
             </h1>
             {profile.bio && (
-              <p className="text-opacity-80 leading-relaxed">
+              <p 
+                className="text-opacity-80 leading-relaxed"
+                style={{ color: profile.text_color }}
+              >
                 {profile.bio}
               </p>
             )}
@@ -79,7 +76,10 @@ export default function PublicLinktree({ profile }: PublicLinktreeProps) {
                   key={link.id}
                   onClick={() => handleLinkClick(link)}
                   className="w-full p-4 rounded-xl font-medium transition-all duration-200 hover:scale-[1.02] hover:shadow-lg flex items-center justify-between group"
-                  style={buttonStyle}
+                  style={{ 
+                    backgroundColor: profile.theme_color,
+                    color: '#ffffff'
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xl">{config?.icon || '🔗'}</span>
@@ -96,11 +96,17 @@ export default function PublicLinktree({ profile }: PublicLinktreeProps) {
 
         {/* Footer */}
         <div className="text-center pt-8">
-          <div className="flex items-center justify-center gap-2 text-sm opacity-60">
+          <div 
+            className="flex items-center justify-center gap-2 text-sm opacity-60"
+            style={{ color: profile.text_color }}
+          >
             <Eye size={14} />
             <span>{profile.view_count} views</span>
           </div>
-          <p className="text-xs opacity-40 mt-2">
+          <p 
+            className="text-xs opacity-40 mt-2"
+            style={{ color: profile.text_color }}
+          >
             Powered by TapyFi
           </p>
         </div>
