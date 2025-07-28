@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import BackgroundPreview from "@/components/ui/background-preview";
+import BackgroundWrapper from "@/components/ui/background-wrapper";
 import EnhancedProfilePicture from "@/components/ui/enhanced-profile-picture";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
 import { ProfileFormData, BackgroundSettings } from "@/types/profile";
 import { platformConfigs } from "@/lib/platform-configs";
-import { Smartphone, Monitor, Eye, ExternalLink, BarChart3, User } from "lucide-react";
+import { Smartphone, Monitor, Eye, ExternalLink, BarChart3, User, RefreshCw } from "lucide-react";
 
 interface PreviewSidebarProps {
   profile: LinktreeProfile | null;
@@ -24,10 +24,25 @@ export default function PreviewSidebar({
   links
 }: PreviewSidebarProps) {
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const previewRef = useRef<HTMLDivElement>(null);
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+    
+    // Add a visual refresh effect
+    if (previewRef.current) {
+      previewRef.current.style.opacity = '0.7';
+      setTimeout(() => {
+        if (previewRef.current) {
+          previewRef.current.style.opacity = '1';
+        }
+      }, 200);
+    }
+  };
 
   // Function to determine if text should be light or dark based on background
   const getContrastColor = (bgColor: string, textColor: string): string => {
-    // If background is light mode, make text more contrasted
     if (backgroundSettings.type === 'solid') {
       const hex = bgColor.replace('#', '');
       const r = parseInt(hex.substr(0, 2), 16);
@@ -35,7 +50,6 @@ export default function PreviewSidebar({
       const b = parseInt(hex.substr(4, 2), 16);
       const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
       
-      // If background is light, return darker text for better contrast
       if (brightness > 128) {
         return textColor === '#000000' ? '#1a1a1a' : textColor;
       }
@@ -45,7 +59,7 @@ export default function PreviewSidebar({
 
   const contrastTextColor = getContrastColor(backgroundSettings.color, profileForm.text_color);
 
-  if (!profile) {
+  if (!profile && !profileForm.username) {
     return (
       <div className="xl:col-span-1">
         <div className="sticky top-6">
@@ -74,6 +88,15 @@ export default function PreviewSidebar({
               </CardTitle>
               <div className="flex items-center gap-1">
                 <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="p-2 h-8 w-8"
+                  onClick={handleRefresh}
+                  title="Refresh Preview"
+                >
+                  <RefreshCw size={14} />
+                </Button>
+                <Button 
                   variant={previewMode === 'mobile' ? 'default' : 'ghost'} 
                   size="sm" 
                   className="p-1 h-8 w-8"
@@ -96,13 +119,15 @@ export default function PreviewSidebar({
             {/* Phone/Desktop Frame */}
             <div className="mx-auto bg-gray-100 dark:bg-gray-800 rounded-lg p-3">
               <div 
+                ref={previewRef}
+                key={refreshKey}
                 className={`relative overflow-hidden rounded-lg border-2 border-gray-300 dark:border-gray-600 ${
                   previewMode === 'mobile' ? 'aspect-[9/16] max-w-[280px]' : 'aspect-[16/10] w-full max-w-[400px]'
-                } mx-auto bg-white`}
+                } mx-auto bg-white transition-opacity duration-200`}
               >
                 {/* Background Layer */}
                 <div className="absolute inset-0">
-                  <BackgroundPreview settings={backgroundSettings} />
+                  <BackgroundWrapper settings={backgroundSettings} />
                 </div>
                 
                 {/* Content Layer */}
@@ -120,7 +145,7 @@ export default function PreviewSidebar({
                       </div>
                       
                       <div style={{ color: contrastTextColor }}>
-                        <h3 className={`font-bold ${previewMode === 'mobile' ? 'text-xl' : 'text-2xl'} drop-shadow-sm`}>
+                        <h3 className={`font-bold ${previewMode === 'mobile' ? 'text-xl' : 'text-2xl'} drop-shadow-lg`}>
                           {profileForm.display_name || profileForm.username || 'Your Name'}
                         </h3>
                         {profileForm.bio && (
@@ -140,11 +165,11 @@ export default function PreviewSidebar({
                             return (
                               <div
                                 key={link.id}
-                                className={`${previewMode === 'mobile' ? 'text-sm p-3' : 'text-base p-4'} rounded-xl flex items-center justify-between gap-3 font-medium transition-all duration-200 hover:scale-[1.02] cursor-pointer shadow-md hover:shadow-lg`}
+                                className={`${previewMode === 'mobile' ? 'text-sm p-3' : 'text-base p-4'} rounded-xl flex items-center justify-between gap-3 font-medium transition-all duration-200 hover:scale-[1.02] cursor-pointer shadow-lg hover:shadow-xl backdrop-blur-sm`}
                                 style={{ 
-                                  backgroundColor: profileForm.theme_color, 
+                                  backgroundColor: `${profileForm.theme_color}${backgroundSettings.type !== 'solid' ? 'E6' : ''}`, 
                                   color: '#ffffff',
-                                  border: '1px solid rgba(255,255,255,0.1)'
+                                  border: '1px solid rgba(255,255,255,0.2)'
                                 }}
                               >
                                 <div className="flex items-center gap-3">
@@ -177,7 +202,7 @@ export default function PreviewSidebar({
                     <div className="text-center pt-4 flex-shrink-0">
                       <div className="flex items-center justify-center gap-2 text-xs opacity-60" style={{ color: contrastTextColor }}>
                         <Eye size={12} />
-                        <span>{profile.view_count || 0} views</span>
+                        <span>{profile?.view_count || 0} views</span>
                       </div>
                       <p className="text-xs opacity-40 mt-1 drop-shadow-sm" style={{ color: contrastTextColor }}>
                         Powered by TapyFi
