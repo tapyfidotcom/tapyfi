@@ -4,121 +4,268 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root,
+  .light {
+    --background: 158 0% 100%;
+    --foreground: 158 0% 10%;
+    --card: 158 0% 100%;
+    --card-foreground: 158 0% 15%;
+    --popover: 158 0% 100%;
+    --popover-foreground: 158 95% 10%;
+    --primary: 158 64.4% 51.6%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 158 10% 90%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 120 10% 95%;
+    --muted-foreground: 158 0% 40%;
+    --accent: 120 10% 90%;
+    --accent-foreground: 158 0% 15%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 158 0% 100%;
+    --border: 158 20% 82%;
+    --input: 158 20% 50%;
+    --ring: 158 64.4% 51.6%;
+    --radius: 0.75rem;
+  }
 
-* {
-  box-sizing: border-box;
-  font-family: "Montserrat", serif !important;
-  font-weight: 500;
+  .dark {
+    --background: 158 10% 10%;
+    --foreground: 158 0% 100%;
+    --card: 158 0% 10%;
+    --card-foreground: 158 0% 100%;
+    --popover: 158 10% 5%;
+    --popover-foreground: 158 0% 100%;
+    --primary: 158 64.4% 51.6%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 158 10% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 120 10% 25%;
+    --muted-foreground: 158 0% 65%;
+    --accent: 120 10% 25%;
+    --accent-foreground: 158 0% 95%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 158 0% 100%;
+    --border: 158 20% 50%;
+    --input: 158 20% 50%;
+    --ring: 158 64.4% 51.6%;
+    --radius: 0.75rem;
+  }
 }
 
-:root {
-  --background: 143 0% 100%;
-  --foreground: 143 0% 10%;
-  --card: 143 0% 100%;
-  --card-foreground: 143 0% 15%;
-  --popover: 143 0% 100%;
-  --popover-foreground: 143 95% 10%;
-  --primary: 143 47.9% 27.8%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 143 10% 90%;
-  --secondary-foreground: 0 0% 0%;
-  --muted: 105 10% 95%;
-  --muted-foreground: 143 0% 40%;
-  --accent: 105 10% 90%;
-  --accent-foreground: 143 0% 15%;
-  --destructive: 0 50% 50%;
-  --destructive-foreground: 143 0% 100%;
-  --border: 143 20% 82%;
-  --input: 143 20% 50%;
-  --ring: 143 47.9% 27.8%;
-  --radius: 0.7rem;
-}
-.dark {
-  --background: 143 10% 10%;
-  --foreground: 143 0% 100%;
-  --card: 143 0% 10%;
-  --card-foreground: 143 0% 100%;
-  --popover: 143 10% 5%;
-  --popover-foreground: 143 0% 100%;
-  --primary: 143 47.9% 27.8%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 143 10% 20%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 105 10% 25%;
-  --muted-foreground: 143 0% 65%;
-  --accent: 105 10% 25%;
-  --accent-foreground: 143 0% 95%;
-  --destructive: 0 50% 50%;
-  --destructive-foreground: 143 0% 100%;
-  --border: 143 20% 50%;
-  --input: 143 20% 50%;
-  --ring: 143 47.9% 27.8%;
-  --radius: 0.7rem;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+  }
 }
 
+/* Prevent theme flicker */
+html {
+  background-color: hsl(158 0% 100%); /* Light theme background as fallback */
+}
 
+html.dark {
+  background-color: hsl(158 10% 10%); /* Dark theme background */
+}
 
-.cl-cardBox{
+/* Ensure proper color scheme inheritance */
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Rest of your existing styles... */
+/* All the Clerk customizations, table styles, etc. remain the same */
+
+/* Rest of your existing styles... */
+/* Clerk Customizations */
+.cl-cardBox {
   box-shadow: none !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
 }
 
-input {
+.cl-card {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+.cl-headerTitle {
+  color: hsl(var(--foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+.cl-headerSubtitle {
+  color: hsl(var(--muted-foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.cl-socialButtonsBlockButton {
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+.cl-dividerLine {
+  background-color: hsl(var(--border)) !important;
+}
+
+.cl-dividerText {
+  color: hsl(var(--muted-foreground)) !important;
+  background-color: hsl(var(--background)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.cl-formFieldLabel {
+  color: hsl(var(--foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 500 !important;
+}
+
+.cl-input, input {
   height: 40px !important;
   box-shadow: none !important;
-  border: 1px solid gray !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-radius: var(--radius) !important;
+  font-family: 'Montserrat', sans-serif !important;
 }
-.cl-formButtonPrimary{
+
+.cl-input:focus, input:focus {
+  border-color: hsl(var(--primary)) !important;
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2) !important;
+}
+
+.cl-formButtonPrimary {
   background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
   height: 40px !important;
+  border: none !important;
+  border-radius: var(--radius) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease-in-out !important;
 }
 
-table{
-  border: 1px solid rgb(187, 187, 187) !important;
-  border-radius: 5px !important;
+.cl-formButtonPrimary:hover {
+  background-color: hsl(var(--primary) / 0.9) !important;
+  transform: translateY(-1px) !important;
 }
 
-
-:root  {
-  --background: 158 0% 100%;
-  --foreground: 158 0% 10%;
-  --card: 158 0% 100%;
-  --card-foreground: 158 0% 15%;
-  --popover: 158 0% 100%;
-  --popover-foreground: 158 95% 10%;
-  --primary: 158 64.4% 51.6%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 158 10% 90%;
-  --secondary-foreground: 0 0% 0%;
-  --muted: 120 10% 95%;
-  --muted-foreground: 158 0% 40%;
-  --accent: 120 10% 90%;
-  --accent-foreground: 158 0% 15%;
-  --destructive: 0 50% 50%;
-  --destructive-foreground: 158 0% 100%;
-  --border: 158 20% 82%;
-  --input: 158 20% 50%;
-  --ring: 158 64.4% 51.6%;
-  --radius: 0.75rem;
+.cl-footerActionLink {
+  color: hsl(var(--primary)) !important;
+  font-family: 'Montserrat', sans-serif !important;
 }
-.dark  {
-  --background: 158 10% 10%;
-  --foreground: 158 0% 100%;
-  --card: 158 0% 10%;
-  --card-foreground: 158 0% 100%;
-  --popover: 158 10% 5%;
-  --popover-foreground: 158 0% 100%;
-  --primary: 158 64.4% 51.6%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 158 10% 20%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 120 10% 25%;
-  --muted-foreground: 158 0% 65%;
-  --accent: 120 10% 25%;
-  --accent-foreground: 158 0% 95%;
-  --destructive: 0 50% 50%;
-  --destructive-foreground: 158 0% 100%;
-  --border: 158 20% 50%;
-  --input: 158 20% 50%;
-  --ring: 158 64.4% 51.6%;
-  --radius: 0.75rem;
+
+.cl-footerActionText {
+  color: hsl(var(--muted-foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.cl-identityPreviewText {
+  color: hsl(var(--foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.cl-identityPreviewEditButton {
+  color: hsl(var(--primary)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Table Styles */
+table {
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+table th {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  padding: 12px !important;
+  font-weight: 600 !important;
+}
+
+table td {
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  padding: 12px !important;
+}
+
+table tr:hover {
+  background-color: hsl(var(--accent)) !important;
+}
+
+/* Custom Scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Smooth Transitions */
+* {
+  transition: background-color 0.2s ease-in-out, 
+              border-color 0.2s ease-in-out, 
+              color 0.2s ease-in-out,
+              transform 0.2s ease-in-out !important;
+}
+
+/* Success/Error States */
+.success {
+  color: hsl(142 76% 36%) !important;
+  background-color: hsl(142 76% 36% / 0.1) !important;
+  border-color: hsl(142 76% 36% / 0.3) !important;
+}
+
+.error {
+  color: hsl(var(--destructive)) !important;
+  background-color: hsl(var(--destructive) / 0.1) !important;
+  border-color: hsl(var(--destructive) / 0.3) !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .cl-cardBox {
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+  
+  .cl-card {
+    border-left: none !important;
+    border-right: none !important;
+  }
 }

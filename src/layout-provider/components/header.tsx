@@ -29,7 +29,7 @@ function Header({ user }: { user: IUser }) {
           <span className="text-violet-400 drop-shadow-[0_0_10px_rgba(167,139,250,0.5)]">
             Fi
           </span>
-        </h1>
+        </h1> 
       </div>
 
       {/* User section */}
