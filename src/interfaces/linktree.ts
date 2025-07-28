@@ -64,11 +64,24 @@ export interface CreateLinktreeLink {
 }
 
 export interface BackgroundSettings {
-  type: 'solid' | 'darkveil' | 'faultyterminal' | 'galaxy' | 'hyperspeed' | 'iridescence' | 'lightrays' | 'particles' | 'ripplegrid' | 'silk';
+  type: 'solid' | 'hyperspeed';
   color: string;
   speed: number;
   intensity: number;
-  preset?: string;
-  scale?: number;
-  direction?: number;
+  
+  // Hyperspeed specific props
+  preset?: 'one' | 'two' | 'three' | 'four' | 'five' | 'six';
+  distortion?: string;
+  roadWidth?: number;
+  islandWidth?: number;
+  lanesPerRoad?: number;
+  fov?: number;
+  fovSpeedUp?: number;
+  speedUp?: number;
+  carLightsFade?: number;
+  totalSideLightSticks?: number;
+  lightPairsPerRoadWay?: number;
+  
+  // Common properties
+  mouseInteraction?: boolean;
 }
