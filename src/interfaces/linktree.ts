@@ -69,6 +69,10 @@ export interface BackgroundSettings {
   speed: number;
   intensity: number;
   
+  // Legacy properties (if needed)
+  scale?: number;
+  direction?: string;
+  
   // Hyperspeed specific props
   preset?: 'one' | 'two' | 'three' | 'four' | 'five' | 'six';
   distortion?: string;
@@ -82,6 +86,5 @@ export interface BackgroundSettings {
   totalSideLightSticks?: number;
   lightPairsPerRoadWay?: number;
   
-  // Common properties
   mouseInteraction?: boolean;
 }
