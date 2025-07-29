@@ -18,7 +18,16 @@ const Hyperspeed = dynamic(() => import("@/components/backgrounds/Hyperspeed/Hyp
 const Silk = dynamic(() => import("@/components/backgrounds/Silk/Silk"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full flex items-center justify-center bg-gray-500">
+    <div className="w-full h-full flex items-center justify-center bg-white">
+      <Loader2 className="h-6 w-6 animate-spin text-gray-600" />
+    </div>
+  )
+});
+
+const Squares = dynamic(() => import("@/components/backgrounds/Squares/Squares"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-black">
       <Loader2 className="h-6 w-6 animate-spin text-white" />
     </div>
   )
@@ -220,9 +229,31 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
                   key={`silk-component-${settings.speed}-${settings.scale}-${settings.color}-${settings.noiseIntensity}-${settings.rotation}`}
                   speed={settings.speed || 5}
                   scale={settings.scale || 1}
-                  color={settings.color || '#7B7481'}
+                  color={settings.color || '#ffffff'}
                   noiseIntensity={settings.noiseIntensity || 1.5}
                   rotation={settings.rotation || 0}
+                />
+              </div>
+            </div>
+          </BackgroundLoader>
+        );
+      
+      case 'squares':
+        return (
+          <BackgroundLoader key={`squares-${uniqueKey}`}>
+            <div className="w-full h-full relative">
+              <div 
+                className="absolute inset-0"
+                style={{ backgroundColor: settings.color }}
+              />
+              <div className="absolute inset-0">
+                <Squares
+                  key={`squares-component-${settings.direction}-${settings.speed}-${settings.borderColor}-${settings.squareSize}-${settings.hoverFillColor}`}
+                  direction={settings.direction || 'right'}
+                  speed={settings.speed || 1}
+                  borderColor={settings.borderColor || '#999'}
+                  squareSize={settings.squareSize || 40}
+                  hoverFillColor={settings.hoverFillColor || '#222'}
                 />
               </div>
             </div>

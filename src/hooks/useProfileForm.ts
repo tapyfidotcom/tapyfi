@@ -63,6 +63,12 @@ export function useProfileForm(profile: LinktreeProfile | null) {
             noiseIntensity: parsedSettings.noiseIntensity,
             rotation: parsedSettings.rotation,
             
+            // Squares specific props
+            direction: parsedSettings.direction,
+            borderColor: parsedSettings.borderColor,
+            squareSize: parsedSettings.squareSize,
+            hoverFillColor: parsedSettings.hoverFillColor,
+            
             mouseInteraction: parsedSettings.mouseInteraction || false
           });
         } catch (error) {
