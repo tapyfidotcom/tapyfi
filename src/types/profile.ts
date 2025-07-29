@@ -1,5 +1,5 @@
 export interface BackgroundSettings {
-  type: 'solid' | 'hyperspeed';
+  type: 'solid' | 'hyperspeed' | 'silk';
   color: string;
   speed: number;
   intensity: number;
@@ -17,9 +17,26 @@ export interface BackgroundSettings {
   totalSideLightSticks?: number;
   lightPairsPerRoadWay?: number;
   
+  // Silk specific props
+  scale?: number;
+  noiseIntensity?: number;
+  rotation?: number;
+  
   // Common properties
   mouseInteraction?: boolean;
 }
+
+export interface ProfileFormData {
+  username: string;
+  display_name: string;
+  bio: string;
+  profile_picture: string;
+  company_logo: string;
+  theme_color: string;
+  background_color: string;
+  text_color: string;
+}
+
 
 export interface ProfileFormData {
   username: string;

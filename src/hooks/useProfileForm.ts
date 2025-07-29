@@ -58,6 +58,11 @@ export function useProfileForm(profile: LinktreeProfile | null) {
             totalSideLightSticks: parsedSettings.totalSideLightSticks,
             lightPairsPerRoadWay: parsedSettings.lightPairsPerRoadWay,
             
+            // Silk specific props
+            scale: parsedSettings.scale,
+            noiseIntensity: parsedSettings.noiseIntensity,
+            rotation: parsedSettings.rotation,
+            
             mouseInteraction: parsedSettings.mouseInteraction || false
           });
         } catch (error) {

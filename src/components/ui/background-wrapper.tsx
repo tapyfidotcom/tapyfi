@@ -1,15 +1,24 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useCallback, useMemo, useRef, useEffect } from "react";
 import { BackgroundSettings } from "@/types/profile";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
-// Dynamic import for Hyperspeed to avoid SSR issues
+// Dynamic imports with better error handling
 const Hyperspeed = dynamic(() => import("@/components/backgrounds/Hyperspeed/Hyperspeed"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-black">
+      <Loader2 className="h-6 w-6 animate-spin text-white" />
+    </div>
+  )
+});
+
+const Silk = dynamic(() => import("@/components/backgrounds/Silk/Silk"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-gray-500">
       <Loader2 className="h-6 w-6 animate-spin text-white" />
     </div>
   )
@@ -31,11 +40,18 @@ const BackgroundLoader = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function BackgroundWrapper({ settings, className = "" }: BackgroundWrapperProps) {
-  const safeIntensity = settings.intensity ?? 1;
-  const safeSpeed = settings.speed ?? 1;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const currentTypeRef = useRef<string>(settings.type);
+  
+  // Track type changes to force remount when needed
+  useEffect(() => {
+    if (currentTypeRef.current !== settings.type) {
+      currentTypeRef.current = settings.type;
+    }
+  }, [settings.type]);
 
-  // Map presets to distortion types and colors based on the original code
-  const getHyperspeedOptions = () => {
+  // Memoize options to prevent unnecessary re-renders
+  const hyperspeedOptions = useMemo(() => {
     const baseOptions = {
       speedUp: settings.speedUp || 2,
       fov: settings.fov || 90,
@@ -58,12 +74,12 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
       }
     };
 
-    // Apply preset-specific configurations with proper distortion override
+    // Apply preset-specific configurations
     switch (settings.preset) {
-      case 'two': // Mountain
+      case 'two':
         return {
           ...baseOptions,
-          distortion: settings.distortion || "mountainDistortion", // Use user selection or default
+          distortion: settings.distortion || "mountainDistortion",
           roadWidth: 12,
           lanesPerRoad: 4,
           colors: {
@@ -78,10 +94,10 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             sticks: 0x45b7b8,
           }
         };
-      case 'three': // Racing
+      case 'three':
         return {
           ...baseOptions,
-          distortion: settings.distortion || "LongRaceDistortion", // Use user selection or default
+          distortion: settings.distortion || "LongRaceDistortion",
           roadWidth: 15,
           lanesPerRoad: 4,
           speedUp: 3,
@@ -97,10 +113,10 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             sticks: 0xffffff,
           }
         };
-      case 'four': // Highway
+      case 'four':
         return {
           ...baseOptions,
-          distortion: settings.distortion || "xyDistortion", // Use user selection or default
+          distortion: settings.distortion || "xyDistortion",
           roadWidth: 20,
           lanesPerRoad: 5,
           colors: {
@@ -115,10 +131,10 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             sticks: 0xffa500,
           }
         };
-      case 'five': // Neon
+      case 'five':
         return {
           ...baseOptions,
-          distortion: settings.distortion || "turbulentDistortion", // Use user selection or default
+          distortion: settings.distortion || "turbulentDistortion",
           roadWidth: 8,
           lanesPerRoad: 2,
           colors: {
@@ -133,10 +149,10 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             sticks: 0x00ffff,
           }
         };
-      case 'six': // Deep
+      case 'six':
         return {
           ...baseOptions,
-          distortion: settings.distortion || "deepDistortion", // Use user selection or default
+          distortion: settings.distortion || "deepDistortion",
           roadWidth: 14,
           lanesPerRoad: 3,
           colors: {
@@ -151,20 +167,23 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             sticks: 0x277da1,
           }
         };
-      default: // 'one' - Cyberpunk (default)
+      default:
         return {
           ...baseOptions,
-          distortion: settings.distortion || "turbulentDistortion", // Always use user selection or default
+          distortion: settings.distortion || "turbulentDistortion",
         };
     }
-  };
+  }, [settings]);
 
-  const renderBackground = () => {
+  const renderBackground = useCallback(() => {
+    const uniqueKey = `${settings.type}-${Date.now()}`;
+    
     switch (settings.type) {
       case 'solid':
         return (
           <div 
-            className="w-full h-full"
+            key={`solid-${settings.color}`}
+            className="w-full h-full transition-colors duration-500"
             style={{ 
               backgroundColor: settings.color,
               ...(settings.color === '#ffffff' || settings.color === '#fff' ? {
@@ -176,18 +195,34 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
       
       case 'hyperspeed':
         return (
-          <BackgroundLoader>
+          <BackgroundLoader key={`hyperspeed-${uniqueKey}`}>
             <div className="w-full h-full relative">
-              {/* Background color layer */}
               <div 
-                className="absolute inset-0"
+                className="absolute inset-0 transition-colors duration-500"
                 style={{ backgroundColor: settings.color }}
               />
-              
-              {/* Hyperspeed animation layer */}
               <div className="absolute inset-0">
                 <Hyperspeed
-                  effectOptions={getHyperspeedOptions()}
+                  key={`hyperspeed-component-${JSON.stringify(hyperspeedOptions)}`}
+                  effectOptions={hyperspeedOptions}
+                />
+              </div>
+            </div>
+          </BackgroundLoader>
+        );
+      
+      case 'silk':
+        return (
+          <BackgroundLoader key={`silk-${uniqueKey}`}>
+            <div className="w-full h-full relative">
+              <div className="w-full h-full">
+                <Silk
+                  key={`silk-component-${settings.speed}-${settings.scale}-${settings.color}-${settings.noiseIntensity}-${settings.rotation}`}
+                  speed={settings.speed || 5}
+                  scale={settings.scale || 1}
+                  color={settings.color || '#7B7481'}
+                  noiseIntensity={settings.noiseIntensity || 1.5}
+                  rotation={settings.rotation || 0}
                 />
               </div>
             </div>
@@ -197,15 +232,20 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
       default:
         return (
           <div 
+            key={`default-${settings.color}`}
             className="w-full h-full"
             style={{ backgroundColor: settings.color }}
           />
         );
     }
-  };
+  }, [settings, hyperspeedOptions]);
 
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
+    <div 
+      ref={containerRef}
+      className={`relative w-full h-full overflow-hidden ${className}`}
+      style={{ backgroundColor: settings.color }}
+    >
       {renderBackground()}
     </div>
   );

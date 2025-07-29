@@ -1,13 +1,18 @@
-// next.config.ts
 import type { NextConfig } from "next";
-import fs from 'fs';
-import path from 'path';
 
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: "20mb",
     },
+    esmExternals: true,
+  },
+  webpack: (config) => {
+    config.externals.push({
+      'utf-8-validate': 'commonjs utf-8-validate',
+      'bufferutil': 'commonjs bufferutil',
+    });
+    return config;
   },
   // Only use this for development
   async headers() {
