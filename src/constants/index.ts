@@ -1,24 +1,28 @@
 // for now product categories are hardcoded , later we can fetch it from server / database
 export const productCategories = [
   {
-    label: "Dairy",
-    value: "dairy",
+    label: "Classic Cards",
+    value: "classic",
   },
   {
-    label: "Fruits",
-    value: "fruits",
+    label: "Premium Metal",
+    value: "premium_metal",
   },
   {
-    label: "Vegetables",
-    value: "vegetables",
+    label: "Eco-Friendly",
+    value: "eco_friendly",
   },
   {
-    label: "Millets",
-    value: "millets",
+    label: "Custom Design",
+    value: "custom_design",
   },
   {
-    label: "Others",
-    value: "others",
+    label: "Corporate Bulk",
+    value: "corporate_bulk",
+  },
+  {
+    label: "Accessories",
+    value: "accessories",
   },
 ];
 
@@ -34,5 +38,9 @@ export const productSortOptions = [
   {
     label: "Newest Arrivals",
     value: "newest_arrivals",
+  },
+  {
+    label: "Most Popular",
+    value: "most_popular",
   },
 ];
