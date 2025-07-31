@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import BackgroundWrapper from "@/components/ui/background-wrapper";
 import EnhancedProfilePicture from "@/components/ui/enhanced-profile-picture";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
-import { ProfileFormData, BackgroundSettings } from "@/types/profile";
+import { ProfileFormData, BackgroundSettings, getPrimaryColor } from "@/types/profile"; // ADDED: Import getPrimaryColor
 import { platformConfigs } from "@/lib/platform-configs";
 import { Smartphone, Eye, ExternalLink, BarChart3, User, RefreshCw } from "lucide-react";
 
@@ -54,13 +54,16 @@ export default function PreviewSidebar({
     return textColor;
   };
 
-  const contrastTextColor = getContrastColor(backgroundSettings.color, profileForm.text_color);
+  // FIXED: Use getPrimaryColor to ensure string type
+  const contrastTextColor = getContrastColor(getPrimaryColor(backgroundSettings.color), profileForm.text_color);
 
   const getBackgroundDisplayName = () => {
     switch (backgroundSettings.type) {
       case 'solid': return 'Solid Color';
       case 'hyperspeed': return 'Hyperspeed';
       case 'silk': return 'Silk';
+      case 'squares': return 'Animated Squares';
+      case 'iridescence': return 'Iridescence';
       default: return 'Unknown';
     }
   };
@@ -119,7 +122,7 @@ export default function PreviewSidebar({
                 <div className="absolute inset-0">
                   <BackgroundWrapper 
                     settings={backgroundSettings} 
-                    key={`bg-${backgroundSettings.type}-${backgroundSettings.color}-${Date.now()}`}
+                    key={`bg-${backgroundSettings.type}-${getPrimaryColor(backgroundSettings.color)}-${Date.now()}`}
                   />
                 </div>
                 
