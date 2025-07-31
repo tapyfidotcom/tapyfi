@@ -8,20 +8,25 @@ interface BackgroundComponentProps {
   className?: string;
 }
 
+// SOLID BACKGROUND (SimpleDarkVeil)
 export const SimpleDarkVeil: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
+  const speed = settings.speed ?? 1;
+  const intensity = settings.intensity ?? 1;
+  const color = typeof settings.color === 'string' ? settings.color : settings.color[0];
+
   return (
     <div className={`w-full h-full relative overflow-hidden ${className}`}>
       <div 
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(circle at 20% 20%, ${settings.color}33 0%, transparent 50%),
-            radial-gradient(circle at 80% 80%, ${settings.color}44 0%, transparent 50%),
-            radial-gradient(circle at 40% 70%, ${settings.color}22 0%, transparent 50%),
+            radial-gradient(circle at 20% 20%, ${color}33 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, ${color}44 0%, transparent 50%),
+            radial-gradient(circle at 40% 70%, ${color}22 0%, transparent 50%),
             linear-gradient(45deg, #000 0%, #111 50%, #000 100%)
           `,
-          animation: `darkVeilFlow ${30 / settings.speed}s ease-in-out infinite`,
-          opacity: settings.intensity
+          animation: `darkVeilFlow ${30 / speed}s ease-in-out infinite`,
+          opacity: intensity
         }}
       />
       <div 
@@ -31,10 +36,10 @@ export const SimpleDarkVeil: React.FC<BackgroundComponentProps> = ({ settings, c
             0deg,
             transparent,
             transparent 2px,
-            ${settings.color}11 2px,
-            ${settings.color}11 4px
+            ${color}11 2px,
+            ${color}11 4px
           )`,
-          animation: `scanlines ${2 / settings.speed}s linear infinite`
+          animation: `scanlines ${2 / speed}s linear infinite`
         }}
       />
       <style jsx>{`
@@ -53,23 +58,67 @@ export const SimpleDarkVeil: React.FC<BackgroundComponentProps> = ({ settings, c
   );
 };
 
+// HYPERSPEED BACKGROUND
+export const SimpleHyperspeed: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
+  const speed = settings.speed ?? 1;
+  const intensity = settings.intensity ?? 1;
+  const color = typeof settings.color === 'string' ? settings.color : settings.color[0];
+
+  return (
+    <div className={`w-full h-full relative overflow-hidden bg-black ${className}`}>
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: `
+            repeating-linear-gradient(90deg, 
+              transparent 0px, 
+              ${color}22 1px, 
+              transparent 2px, 
+              transparent 100px
+            ),
+            repeating-linear-gradient(0deg, 
+              transparent 0px, 
+              ${color}11 1px, 
+              transparent 2px, 
+              transparent 100px
+            )
+          `,
+          animation: `hyperspeedFlow ${20 / speed}s linear infinite`,
+          opacity: intensity
+        }}
+      />
+      <style jsx>{`
+        @keyframes hyperspeedFlow {
+          0% { background-position: 0% 0%, 0% 0%; }
+          100% { background-position: 100% 0%, 0% 100%; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// SILK BACKGROUND
 export const SimpleSilk: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
+  const speed = settings.speed ?? 1;
+  const intensity = settings.intensity ?? 1;
+  const color = typeof settings.color === 'string' ? settings.color : settings.color[0];
+
   return (
     <div 
       className={`w-full h-full relative overflow-hidden ${className}`}
-      style={{ backgroundColor: settings.color }}
+      style={{ backgroundColor: color }}
     >
       <div 
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(ellipse at top left, rgba(255,255,255,${settings.intensity * 0.1}) 0%, transparent 50%),
-            radial-gradient(ellipse at top right, rgba(255,255,255,${settings.intensity * 0.08}) 0%, transparent 50%),
-            radial-gradient(ellipse at bottom left, rgba(255,255,255,${settings.intensity * 0.12}) 0%, transparent 50%),
-            linear-gradient(45deg, transparent 25%, rgba(255,255,255,${settings.intensity * 0.05}) 25%, rgba(255,255,255,${settings.intensity * 0.05}) 50%, transparent 50%)
+            radial-gradient(ellipse at top left, rgba(255,255,255,${intensity * 0.1}) 0%, transparent 50%),
+            radial-gradient(ellipse at top right, rgba(255,255,255,${intensity * 0.08}) 0%, transparent 50%),
+            radial-gradient(ellipse at bottom left, rgba(255,255,255,${intensity * 0.12}) 0%, transparent 50%),
+            linear-gradient(45deg, transparent 25%, rgba(255,255,255,${intensity * 0.05}) 25%, rgba(255,255,255,${intensity * 0.05}) 50%, transparent 50%)
           `,
           backgroundSize: '400px 400px, 350px 350px, 450px 450px, 100px 100px',
-          animation: `silkFlow ${25 / settings.speed}s ease-in-out infinite`
+          animation: `silkFlow ${25 / speed}s ease-in-out infinite`
         }}
       />
       <style jsx>{`
@@ -84,113 +133,99 @@ export const SimpleSilk: React.FC<BackgroundComponentProps> = ({ settings, class
   );
 };
 
-export const SimpleLightRays: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
+// SQUARES BACKGROUND
+export const SimpleSquares: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
+  const speed = settings.speed ?? 1;
+  const intensity = settings.intensity ?? 1;
+  const color = typeof settings.color === 'string' ? settings.color : settings.color[0];
+  const squareSize = settings.squareSize ?? 40;
+
   return (
-    <div className={`w-full h-full relative overflow-hidden ${className}`}>
+    <div 
+      className={`w-full h-full relative overflow-hidden ${className}`}
+      style={{ backgroundColor: color }}
+    >
       <div 
         className="absolute inset-0"
         style={{
           background: `
-            conic-gradient(from 0deg at 50% 0%, 
-              transparent 0deg,
-              ${settings.color}${Math.round(settings.intensity * 255).toString(16).padStart(2, '0')} 45deg,
-              transparent 90deg,
-              ${settings.color}${Math.round(settings.intensity * 180).toString(16).padStart(2, '0')} 135deg,
-              transparent 180deg,
-              ${settings.color}${Math.round(settings.intensity * 255).toString(16).padStart(2, '0')} 225deg,
-              transparent 270deg,
-              ${settings.color}${Math.round(settings.intensity * 180).toString(16).padStart(2, '0')} 315deg,
+            repeating-conic-gradient(from 0deg at 50% 50%, 
+              transparent 0deg, 
+              ${color}44 45deg, 
+              transparent 90deg, 
+              ${color}22 135deg, 
+              transparent 180deg, 
+              ${color}44 225deg, 
+              transparent 270deg, 
+              ${color}22 315deg, 
               transparent 360deg
             )
           `,
-          animation: `lightRaysRotate ${20 / settings.speed}s linear infinite`
+          backgroundSize: `${squareSize}px ${squareSize}px`,
+          animation: `squaresRotate ${40 / speed}s linear infinite`,
+          opacity: intensity
         }}
       />
       <style jsx>{`
-        @keyframes lightRaysRotate {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        @keyframes squaresRotate {
+          0% { transform: rotate(0deg); background-position: 0% 0%; }
+          100% { transform: rotate(360deg); background-position: 100% 100%; }
         }
       `}</style>
     </div>
   );
 };
 
-export const SimpleGalaxy: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
-  return (
-    <div className={`w-full h-full relative overflow-hidden bg-black ${className}`}>
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: `
-            radial-gradient(2px 2px at 20px 30px, ${settings.color}, transparent),
-            radial-gradient(2px 2px at 40px 70px, ${settings.color}88, transparent),
-            radial-gradient(1px 1px at 90px 40px, ${settings.color}66, transparent),
-            radial-gradient(1px 1px at 130px 80px, ${settings.color}, transparent),
-            radial-gradient(2px 2px at 160px 30px, ${settings.color}88, transparent),
-            radial-gradient(1px 1px at 200px 60px, ${settings.color}44, transparent),
-            radial-gradient(2px 2px at 240px 90px, ${settings.color}, transparent),
-            radial-gradient(1px 1px at 280px 20px, ${settings.color}77, transparent)
-          `,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '300px 200px',
-          animation: `galaxyFloat ${40 / settings.speed}s linear infinite, galaxyTwinkle ${3 / settings.speed}s ease-in-out infinite alternate`
-        }}
-      />
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: `radial-gradient(circle at center, ${settings.color}22 0%, transparent 70%)`,
-          animation: `galaxySpin ${60 / settings.speed}s linear infinite`
-        }}
-      />
-      <style jsx>{`
-        @keyframes galaxyFloat {
-          0% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-10px) translateX(5px); }
-          50% { transform: translateY(-20px) translateX(-5px); }
-          75% { transform: translateY(-10px) translateX(5px); }
-          100% { transform: translateY(0px) translateX(0px); }
-        }
-        @keyframes galaxySpin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        @keyframes galaxyTwinkle {
-          0% { opacity: ${settings.intensity * 0.8}; }
-          100% { opacity: ${settings.intensity}; }
-        }
-      `}</style>
-    </div>
-  );
-};
+// IRIDESCENCE BACKGROUND
+export const SimpleIridescence: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
+  const speed = settings.speed ?? 1;
+  const intensity = settings.intensity ?? 1;
+  const color = typeof settings.color === 'string' ? settings.color : settings.color[0];
+  const iridescenceColor = settings.iridescenceColor ?? [0.3, 0.2, 0.5];
 
-export const SimpleParticles: React.FC<BackgroundComponentProps> = ({ settings, className = "" }) => {
   return (
-    <div className={`w-full h-full relative overflow-hidden ${className}`} style={{ backgroundColor: settings.color }}>
+    <div 
+      className={`w-full h-full relative overflow-hidden ${className}`}
+      style={{ backgroundColor: color }}
+    >
       <div 
         className="absolute inset-0"
         style={{
           background: `
-            radial-gradient(1px 1px at 10px 20px, white, transparent),
-            radial-gradient(1px 1px at 50px 60px, white, transparent),
-            radial-gradient(1px 1px at 80px 30px, white, transparent),
-            radial-gradient(1px 1px at 120px 80px, white, transparent),
-            radial-gradient(1px 1px at 160px 40px, white, transparent),
-            radial-gradient(1px 1px at 200px 70px, white, transparent),
-            radial-gradient(1px 1px at 240px 25px, white, transparent),
-            radial-gradient(1px 1px at 280px 90px, white, transparent)
+            radial-gradient(circle at 30% 20%, 
+              rgba(${Math.round(iridescenceColor[0] * 255)}, ${Math.round(iridescenceColor[1] * 255)}, ${Math.round(iridescenceColor[2] * 255)}, ${intensity * 0.4}) 0%, 
+              transparent 50%
+            ),
+            radial-gradient(circle at 70% 80%, 
+              rgba(${Math.round(iridescenceColor[2] * 255)}, ${Math.round(iridescenceColor[0] * 255)}, ${Math.round(iridescenceColor[1] * 255)}, ${intensity * 0.3}) 0%, 
+              transparent 50%
+            ),
+            linear-gradient(45deg, 
+              rgba(${Math.round(iridescenceColor[1] * 255)}, ${Math.round(iridescenceColor[2] * 255)}, ${Math.round(iridescenceColor[0] * 255)}, ${intensity * 0.2}) 0%, 
+              transparent 100%
+            )
           `,
-          backgroundSize: '300px 100px',
-          backgroundRepeat: 'repeat',
-          opacity: settings.intensity,
-          animation: `particlesFloat ${15 / settings.speed}s linear infinite`
+          animation: `iridescenceShift ${35 / speed}s ease-in-out infinite`
         }}
       />
       <style jsx>{`
-        @keyframes particlesFloat {
-          0% { transform: translateY(100px); }
-          100% { transform: translateY(-100px); }
+        @keyframes iridescenceShift {
+          0%, 100% { 
+            background-position: 0% 0%, 100% 100%, 0% 100%; 
+            filter: hue-rotate(0deg);
+          }
+          25% { 
+            background-position: 25% 25%, 75% 75%, 25% 75%; 
+            filter: hue-rotate(90deg);
+          }
+          50% { 
+            background-position: 50% 50%, 50% 50%, 50% 50%; 
+            filter: hue-rotate(180deg);
+          }
+          75% { 
+            background-position: 75% 25%, 25% 75%, 75% 25%; 
+            filter: hue-rotate(270deg);
+          }
         }
       `}</style>
     </div>
