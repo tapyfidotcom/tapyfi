@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
 import { platformConfigs } from "@/lib/platform-configs";
-import { Link as LinkIcon, Plus, Edit3, Trash2 } from "lucide-react";
+import { Link as LinkIcon, Plus, Edit3, Trash2, Loader2, BarChart3 } from "lucide-react";
 
 interface LinksTabProps {
   profile: LinktreeProfile | null;
@@ -23,6 +23,17 @@ export default function LinksTab({
   handleEditLink,
   handleDeleteLink
 }: LinksTabProps) {
+  const [loadingLinkId, setLoadingLinkId] = useState<number | null>(null);
+
+  const handleDeleteWithLoading = async (linkId: number) => {
+    setLoadingLinkId(linkId);
+    try {
+      await handleDeleteLink(linkId);
+    } finally {
+      setLoadingLinkId(null);
+    }
+  };
+
   return (
     <TabsContent value="links" className="space-y-6">
       {profile && (
@@ -32,8 +43,15 @@ export default function LinksTab({
               <CardTitle className="flex items-center gap-2">
                 <LinkIcon size={20} />
                 Manage Links
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({links.length} total)
+                </span>
               </CardTitle>
-              <Button onClick={() => setShowPlatformSelector(true)} size="sm" className="w-full sm:w-auto">
+              <Button 
+                onClick={() => setShowPlatformSelector(true)} 
+                size="sm" 
+                className="w-full sm:w-auto rounded-full"
+              >
                 <Plus size={16} className="mr-2" />
                 Add Link
               </Button>
@@ -45,7 +63,10 @@ export default function LinksTab({
                 <LinkIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium text-muted-foreground mb-2">No links added yet</h3>
                 <p className="text-sm text-muted-foreground mb-4">Start building your link collection</p>
-                <Button onClick={() => setShowPlatformSelector(true)} className="w-full sm:w-auto">
+                <Button 
+                  onClick={() => setShowPlatformSelector(true)} 
+                  className="w-full sm:w-auto rounded-full"
+                >
                   <Plus size={16} className="mr-2" />
                   Add Your First Link
                 </Button>
@@ -56,10 +77,12 @@ export default function LinksTab({
                   .sort((a, b) => a.display_order - b.display_order)
                   .map((link) => {
                     const config = platformConfigs[link.platform];
+                    const isLoading = loadingLinkId === link.id;
+                    
                     return (
                       <div
                         key={link.id}
-                        className="flex items-center gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                        className="flex items-center gap-4 p-4 border rounded-xl hover:bg-accent/50 transition-colors"
                       >
                         <div className="text-2xl flex-shrink-0">{config?.icon || '🔗'}</div>
                         <div className="flex-1 min-w-0">
@@ -67,25 +90,34 @@ export default function LinksTab({
                           <p className="text-sm text-muted-foreground truncate">
                             {link.url}
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            {link.click_count} clicks
-                          </p>
+                          <div className="flex items-center gap-4 mt-1">
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <BarChart3 size={12} />
+                              {link.click_count} clicks
+                            </p>
+                            <span className="text-xs text-muted-foreground">
+                              Order: {link.display_order}
+                            </span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEditLink(link)}
+                            className="rounded-full"
+                            disabled={isLoading}
                           >
                             <Edit3 size={16} />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDeleteLink(link.id)}
-                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteWithLoading(link.id)}
+                            className="text-destructive hover:text-destructive rounded-full"
+                            disabled={isLoading}
                           >
-                            <Trash2 size={16} />
+                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                           </Button>
                         </div>
                       </div>

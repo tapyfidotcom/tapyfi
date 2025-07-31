@@ -10,11 +10,12 @@ import ProfileURLCard from "@/components/profile/PublicUrlCard";
 import ProfileTab from "@/components/profile/ProfileTabs";
 import DesignTab from "@/components/profile/DesignTab";
 import LinksTab from "@/components/profile/LinksTab";
-import SettingsTab from "@/components/profile/SettingsTab";
+import AnalyticsTab from "@/components/profile/AnalyticsTab";
 import PreviewSidebar from "@/components/profile/PreviewSidebar";
 import PlatformSelector from "@/components/linktree/platform-selector";
 import LinkForm from "@/components/linktree/link-form";
 import { useProfileForm } from "@/hooks/useProfileForm";
+import { getPrimaryBackgroundColor } from "@/types/profile";
 import { 
   getUserLinktreeProfile, 
   createLinktreeProfile, 
@@ -26,7 +27,7 @@ import {
 } from "@/actions/linktree";
 import { LinktreeProfile, LinktreeLink, CreateLinktreeLink } from "@/interfaces/linktree";
 import toast from "react-hot-toast";
-import { Loader2, User, Palette, Link as LinkIcon, Settings } from "lucide-react";
+import { Loader2, User, Palette, Link as LinkIcon, BarChart3 } from "lucide-react";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -65,6 +66,8 @@ export default function ProfilePage() {
     }
   };
 
+  // ... (keep all the existing functions like checkUsername, handleProfileSave, etc.)
+
   const checkUsername = async (username: string) => {
     if (!username || username.length < 3) {
       setUsernameAvailable(null);
@@ -99,9 +102,10 @@ export default function ProfilePage() {
   const handleProfileSave = async () => {
     try {
       setSaving(true);
+      
       const formDataWithBackground = {
         ...profileForm,
-        background_color: backgroundSettings.color,
+        background_color: getPrimaryBackgroundColor(backgroundSettings.color),
         background_settings: JSON.stringify(backgroundSettings)
       };
 
@@ -195,29 +199,32 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-7xl mx-auto p-4 lg:p-6 space-y-6">
+      {/* OPTIMIZED: Full-width container with better spacing */}
+      <div className="w-full max-w-none mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12 space-y-4 lg:space-y-6">
         <ProfileHeader profile={profile} router={router} />
         <ProfileURLCard profile={profile} />
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-          <div className="xl:col-span-3 space-y-6">
+        {/* OPTIMIZED: Better responsive grid layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+          {/* MAIN CONTENT: Takes 8 columns on desktop (66.7%) */}
+          <div className="lg:col-span-8 space-y-4 lg:space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="profile" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <User size={16} />
+              <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6">
+                <TabsTrigger value="profile" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
+                  <User size={14} className="lg:w-4 lg:h-4" />
                   <span className="hidden sm:inline">Profile</span>
                 </TabsTrigger>
-                <TabsTrigger value="design" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <Palette size={16} />
+                <TabsTrigger value="design" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
+                  <Palette size={14} className="lg:w-4 lg:h-4" />
                   <span className="hidden sm:inline">Design</span>
                 </TabsTrigger>
-                <TabsTrigger value="links" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <LinkIcon size={16} />
+                <TabsTrigger value="links" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
+                  <LinkIcon size={14} className="lg:w-4 lg:h-4" />
                   <span className="hidden sm:inline">Links</span>
                 </TabsTrigger>
-                <TabsTrigger value="settings" className="flex items-center gap-2 text-xs sm:text-sm">
-                  <Settings size={16} />
-                  <span className="hidden sm:inline">Settings</span>
+                <TabsTrigger value="analytics" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
+                  <BarChart3 size={14} className="lg:w-4 lg:h-4" />
+                  <span className="hidden sm:inline">Analytics</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -229,7 +236,7 @@ export default function ProfilePage() {
                 handleProfileSave={handleProfileSave}
                 saving={saving}
                 profile={profile}
-                handleUsernameChange={handleUsernameChange} // Added this missing prop
+                handleUsernameChange={handleUsernameChange}
               />
 
               <DesignTab 
@@ -238,7 +245,8 @@ export default function ProfilePage() {
                 profileForm={profileForm}
                 setProfileForm={setProfileForm}
                 links={links}
-                onSaveBackground={handleProfileSave} // Add this line
+                profile={profile} 
+                onSaveBackground={handleProfileSave}
               />
 
               <LinksTab 
@@ -249,16 +257,19 @@ export default function ProfilePage() {
                 handleDeleteLink={handleDeleteLink}
               />
 
-              <SettingsTab profile={profile} links={links} />
+              <AnalyticsTab profile={profile} links={links} />
             </Tabs>
           </div>
 
-          <PreviewSidebar 
-            profile={profile}
-            profileForm={profileForm}
-            backgroundSettings={backgroundSettings}
-            links={links}
-          />
+          {/* SIDEBAR: Takes 4 columns on desktop (33.3%) */}
+          <div className="lg:col-span-4">
+            <PreviewSidebar 
+              profile={profile}
+              profileForm={profileForm}
+              backgroundSettings={backgroundSettings}
+              links={links}
+            />
+          </div>
         </div>
 
         {/* Modals */}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useCallback, useMemo, useRef, useEffect } from "react";
-import { BackgroundSettings } from "@/types/profile";
+import { BackgroundSettings, getPrimaryColor, ensureIridescenceColor } from "@/types/profile";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -33,6 +33,15 @@ const Squares = dynamic(() => import("@/components/backgrounds/Squares/Squares")
   )
 });
 
+const Iridescence = dynamic(() => import("@/components/backgrounds/Iridescence/Iridescence"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-black">
+      <Loader2 className="h-6 w-6 animate-spin text-white" />
+    </div>
+  )
+});
+
 interface BackgroundWrapperProps {
   settings: BackgroundSettings;
   className?: string;
@@ -52,15 +61,15 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
   const containerRef = useRef<HTMLDivElement>(null);
   const currentTypeRef = useRef<string>(settings.type);
   
-  // Track type changes to force remount when needed
   useEffect(() => {
     if (currentTypeRef.current !== settings.type) {
       currentTypeRef.current = settings.type;
     }
   }, [settings.type]);
 
-  // Memoize options to prevent unnecessary re-renders
+  // Memoize hyperspeed options
   const hyperspeedOptions = useMemo(() => {
+    const baseColor = getPrimaryColor(settings.color);
     const baseOptions = {
       speedUp: settings.speedUp || 2,
       fov: settings.fov || 90,
@@ -74,7 +83,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
       colors: {
         roadColor: 0x080808,
         islandColor: 0x0a0a0a,
-        background: parseInt(settings.color.replace('#', ''), 16) || 0x000000,
+        background: parseInt(baseColor.replace('#', ''), 16) || 0x000000,
         shoulderLines: 0x131318,
         brokenLines: 0x131318,
         leftCars: [0xd856bf, 0x6750a2, 0xc247ac],
@@ -83,7 +92,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
       }
     };
 
-    // Apply preset-specific configurations
+    // Apply preset configurations
     switch (settings.preset) {
       case 'two':
         return {
@@ -95,7 +104,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             ...baseOptions.colors,
             roadColor: 0x1a1a1a,
             islandColor: 0x2a2a2a,
-            background: parseInt(settings.color.replace('#', ''), 16) || 0x0f0f0f,
+            background: parseInt(baseColor.replace('#', ''), 16) || 0x0f0f0f,
             shoulderLines: 0x4a4a4a,
             brokenLines: 0x6a6a6a,
             leftCars: [0xff6b6b, 0xff8e8e, 0xffa8a8],
@@ -114,7 +123,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             ...baseOptions.colors,
             roadColor: 0x0a0a0a,
             islandColor: 0x151515,
-            background: parseInt(settings.color.replace('#', ''), 16) || 0x000000,
+            background: parseInt(baseColor.replace('#', ''), 16) || 0x000000,
             shoulderLines: 0xffffff,
             brokenLines: 0xffff00,
             leftCars: [0xff0000, 0xff3333, 0xff6666],
@@ -132,7 +141,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             ...baseOptions.colors,
             roadColor: 0x2c2c2c,
             islandColor: 0x3c3c3c,
-            background: parseInt(settings.color.replace('#', ''), 16) || 0x1a1a1a,
+            background: parseInt(baseColor.replace('#', ''), 16) || 0x1a1a1a,
             shoulderLines: 0xffffff,
             brokenLines: 0xffffff,
             leftCars: [0xffa500, 0xffb347, 0xffc266],
@@ -150,7 +159,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             ...baseOptions.colors,
             roadColor: 0x001122,
             islandColor: 0x002244,
-            background: parseInt(settings.color.replace('#', ''), 16) || 0x000011,
+            background: parseInt(baseColor.replace('#', ''), 16) || 0x000011,
             shoulderLines: 0x00ffff,
             brokenLines: 0xff00ff,
             leftCars: [0x00ff00, 0x33ff33, 0x66ff66],
@@ -168,7 +177,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             ...baseOptions.colors,
             roadColor: 0x0d1b2a,
             islandColor: 0x1b263b,
-            background: parseInt(settings.color.replace('#', ''), 16) || 0x0a0f1c,
+            background: parseInt(baseColor.replace('#', ''), 16) || 0x0a0f1c,
             shoulderLines: 0x415a77,
             brokenLines: 0x778da9,
             leftCars: [0xe63946, 0xf77f00, 0xfcbf49],
@@ -189,16 +198,28 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
     
     switch (settings.type) {
       case 'solid':
+        const isGradient = Array.isArray(settings.color) && settings.color.length > 1;
+        let backgroundStyle: string;
+        
+        if (isGradient) {
+          const direction = settings.gradientDirection || 135;
+          const type = settings.gradientType || 'linear';
+          const colors = settings.color as string[];
+          
+          if (type === 'radial') {
+            backgroundStyle = `radial-gradient(circle, ${colors.join(', ')})`;
+          } else {
+            backgroundStyle = `linear-gradient(${direction}deg, ${colors.join(', ')})`;
+          }
+        } else {
+          backgroundStyle = getPrimaryColor(settings.color);
+        }
+        
         return (
           <div 
-            key={`solid-${settings.color}`}
-            className="w-full h-full transition-colors duration-500"
-            style={{ 
-              backgroundColor: settings.color,
-              ...(settings.color === '#ffffff' || settings.color === '#fff' ? {
-                backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(0,0,0,0.02) 0%, transparent 50%)'
-              } : {})
-            }}
+            key={`solid-${uniqueKey}`}
+            className="w-full h-full transition-all duration-500"
+            style={{ background: backgroundStyle }}
           />
         );
       
@@ -208,7 +229,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             <div className="w-full h-full relative">
               <div 
                 className="absolute inset-0 transition-colors duration-500"
-                style={{ backgroundColor: settings.color }}
+                style={{ backgroundColor: getPrimaryColor(settings.color) }}
               />
               <div className="absolute inset-0">
                 <Hyperspeed
@@ -229,7 +250,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
                   key={`silk-component-${settings.speed}-${settings.scale}-${settings.color}-${settings.noiseIntensity}-${settings.rotation}`}
                   speed={settings.speed || 5}
                   scale={settings.scale || 1}
-                  color={settings.color || '#ffffff'}
+                  color={getPrimaryColor(settings.color) || '#ffffff'}
                   noiseIntensity={settings.noiseIntensity || 1.5}
                   rotation={settings.rotation || 0}
                 />
@@ -244,7 +265,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
             <div className="w-full h-full relative">
               <div 
                 className="absolute inset-0"
-                style={{ backgroundColor: settings.color }}
+                style={{ backgroundColor: getPrimaryColor(settings.color) }}
               />
               <div className="absolute inset-0">
                 <Squares
@@ -260,12 +281,32 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
           </BackgroundLoader>
         );
       
+      case 'iridescence':
+        // FIXED: Use the helper function to ensure proper tuple type
+        const iridescenceColor = ensureIridescenceColor(settings.iridescenceColor);
+        
+        return (
+          <BackgroundLoader key={`iridescence-${uniqueKey}`}>
+            <div className="w-full h-full relative">
+              <div className="w-full h-full">
+                <Iridescence
+                  key={`iridescence-component-${JSON.stringify(iridescenceColor)}-${settings.speed}-${settings.amplitude}-${settings.mouseReact}`}
+                  color={iridescenceColor}
+                  speed={settings.speed || 1.0}
+                  amplitude={settings.amplitude || 0.1}
+                  mouseReact={settings.mouseReact || false}
+                />
+              </div>
+            </div>
+          </BackgroundLoader>
+        );
+      
       default:
         return (
           <div 
             key={`default-${settings.color}`}
             className="w-full h-full"
-            style={{ backgroundColor: settings.color }}
+            style={{ backgroundColor: getPrimaryColor(settings.color) }}
           />
         );
     }
@@ -275,7 +316,7 @@ export default function BackgroundWrapper({ settings, className = "" }: Backgrou
     <div 
       ref={containerRef}
       className={`relative w-full h-full overflow-hidden ${className}`}
-      style={{ backgroundColor: settings.color }}
+      style={{ backgroundColor: getPrimaryColor(settings.color) }}
     >
       {renderBackground()}
     </div>

@@ -206,11 +206,99 @@ export const getPublicLinktreeProfile = async (username: string) => {
       return { success: false, message: "Profile not found" };
     }
 
-    // Increment view count
-    await supabase.rpc('increment_profile_view', { profile_id_param: profile[0].id });
-
     return { success: true, data: profile[0] };
   } catch (error: any) {
+    return { success: false, message: error.message };
+  }
+};
+
+// FIXED: Increment profile view count using RPC
+export const incrementProfileView = async (username: string) => {
+  try {
+    // Get profile first
+    const { data: profile, error: profileError } = await supabase
+      .from("linktree_profiles")
+      .select("id")
+      .eq("username", username.toLowerCase())
+      .single();
+
+    if (profileError || !profile) {
+      return { success: false, message: "Profile not found" };
+    }
+
+    // Call RPC function to increment view count
+    const { error: incrementError } = await supabase
+      .rpc('increment_profile_view', { 
+        profile_id_param: profile.id 
+      });
+
+    if (incrementError) {
+      console.error("Error incrementing view count:", incrementError);
+      return { success: false, message: incrementError.message };
+    }
+
+    // Log analytics event
+    const { error: analyticsError } = await supabase
+      .from("linktree_analytics")
+      .insert({
+        profile_id: profile.id,
+        event_type: "profile_view",
+        user_agent: "Unknown", // You can get this from headers in production
+        ip_address: "0.0.0.0", // You can get real IP in production
+      });
+
+    if (analyticsError) {
+      console.error("Error logging analytics:", analyticsError);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error incrementing profile view:", error);
+    return { success: false, message: error.message };
+  }
+};
+
+// FIXED: Increment link click count using RPC
+export const incrementLinkClick = async (linkId: number) => {
+  try {
+    // Call RPC function to increment click count
+    const { error: incrementError } = await supabase
+      .rpc('increment_link_click', { 
+        link_id_param: linkId 
+      });
+
+    if (incrementError) {
+      console.error("Error incrementing click count:", incrementError);
+      return { success: false, message: incrementError.message };
+    }
+
+    // Get link and profile info for analytics
+    const { data: link } = await supabase
+      .from("linktree_links")
+      .select("profile_id, platform, title")
+      .eq("id", linkId)
+      .single();
+
+    if (link) {
+      // Log analytics event
+      const { error: analyticsError } = await supabase
+        .from("linktree_analytics")
+        .insert({
+          profile_id: link.profile_id,
+          link_id: linkId,
+          event_type: "link_click",
+          user_agent: "Unknown", // You can get this from headers in production
+          ip_address: "0.0.0.0", // You can get real IP in production
+        });
+
+      if (analyticsError) {
+        console.error("Error logging link click analytics:", analyticsError);
+      }
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error incrementing link click:", error);
     return { success: false, message: error.message };
   }
 };
@@ -415,5 +503,58 @@ export const checkUsernameAvailability = async (username: string) => {
     return { success: true, message: "Username is available" };
   } catch (error: any) {
     return { success: true, message: "Username is available" }; // If no record found, it's available
+  }
+};
+
+// Get analytics data for a profile
+export const getProfileAnalytics = async (timeRange: '7d' | '30d' | '90d' = '30d') => {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return { success: false, message: "User not authenticated" };
+    }
+
+    // Get user profile
+    const { data: userProfile, error: userError } = await supabase
+      .from("user_profiles")
+      .select("id")
+      .eq("clerk_user_id", clerkUser.id)
+      .single();
+
+    if (userError || !userProfile) {
+      return { success: false, message: "User profile not found" };
+    }
+
+    // Get linktree profile
+    const { data: linktreeProfile, error: linktreeError } = await supabase
+      .from("linktree_profiles")
+      .select("id")
+      .eq("user_id", userProfile.id)
+      .single();
+
+    if (linktreeError || !linktreeProfile) {
+      return { success: false, message: "Linktree profile not found" };
+    }
+
+    // Calculate date range
+    const daysBack = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysBack);
+
+    // Get analytics data
+    const { data: analytics, error: analyticsError } = await supabase
+      .from("linktree_analytics")
+      .select("*")
+      .eq("profile_id", linktreeProfile.id)
+      .gte("created_at", startDate.toISOString())
+      .order("created_at", { ascending: true });
+
+    if (analyticsError) {
+      return { success: false, message: analyticsError.message };
+    }
+
+    return { success: true, data: analytics };
+  } catch (error: any) {
+    return { success: false, message: error.message };
   }
 };

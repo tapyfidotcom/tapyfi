@@ -44,13 +44,14 @@ export default function ProfileHeader({ profile, router }: ProfileHeaderProps) {
             <span className="hidden sm:inline">Copy Link</span>
           </Button>
           <Button 
-            onClick={() => router.push(`/${profile.username}`)}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <ExternalLink size={14} />
-            <span className="hidden sm:inline">View Live</span>
-          </Button>
+  onClick={() => window.open(`/${profile.username}`, '_blank', 'noopener,noreferrer')}
+  size="sm"
+  className="flex items-center gap-2"
+>
+  <ExternalLink size={14} />
+  <span className="hidden sm:inline">View Live</span>
+</Button>
+
         </div>
       )}
     </div>

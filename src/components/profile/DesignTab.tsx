@@ -8,9 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import BackgroundSelector from "@/components/ui/background-selector";
-import { LinktreeLink } from "@/interfaces/linktree";
-import { ProfileFormData, BackgroundSettings } from "@/types/profile";
-import { Palette, Save, Check, Loader2, Sparkles } from "lucide-react";
+import { LinktreeLink, LinktreeProfile } from "@/interfaces/linktree";
+import { ProfileFormData, BackgroundSettings, getPrimaryBackgroundColor } from "@/types/profile";
+import { 
+  Palette, 
+  Save, 
+  Check, 
+  Loader2, 
+  Sparkles
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 interface DesignTabProps {
@@ -19,6 +25,7 @@ interface DesignTabProps {
   profileForm: ProfileFormData;
   setProfileForm: (form: ProfileFormData | ((prev: ProfileFormData) => ProfileFormData)) => void;
   links: LinktreeLink[];
+  profile: LinktreeProfile | null;
   onSaveBackground?: () => Promise<void>;
 }
 
@@ -28,6 +35,7 @@ export default function DesignTab({
   profileForm,
   setProfileForm,
   links,
+  profile,
   onSaveBackground
 }: DesignTabProps) {
   const [savingBackground, setSavingBackground] = useState(false);
@@ -39,7 +47,8 @@ export default function DesignTab({
       try {
         setProfileForm((prev: ProfileFormData) => ({
           ...prev,
-          background_color: backgroundSettings.color
+          background_color: getPrimaryBackgroundColor(backgroundSettings.color),
+          background_settings: JSON.stringify(backgroundSettings)
         }));
         
         await onSaveBackground();
@@ -104,6 +113,7 @@ export default function DesignTab({
         }
       `}</style>
 
+      {/* Design Settings Card */}
       <Card className="overflow-hidden bg-gradient-to-br from-card to-card/50 dark:from-gray-800 dark:to-gray-900 shadow-xl">
         <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b dark:border-gray-700">
           <div className="flex items-center justify-between">
@@ -124,7 +134,7 @@ export default function DesignTab({
               ) : (
                 <Save size={14} />
               )}
-              {savingBackground ? 'Saving...' : backgroundSaved ? 'Saved!' : 'Save Background'}
+              {savingBackground ? 'Saving...' : backgroundSaved ? 'Saved!' : 'Save Design'}
             </Button>
           </div>
         </CardHeader>
