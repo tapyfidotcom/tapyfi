@@ -34,12 +34,11 @@ export default function PublicLinktreeClient({
 
     setLoadingLinkId(link.id);
 
-    // Open link immediately to ensure mobile browsers don't block it
-    const newWindow = window.open(link.url, "_blank", "noopener,noreferrer");
-
-    // Track the click asynchronously without blocking the link opening
     try {
-      // Use setTimeout to ensure link opens first
+      // Open link in new tab - this is the only way we want links to open
+      window.open(link.url, "_blank", "noopener,noreferrer");
+
+      // Track the click asynchronously without blocking the link opening
       setTimeout(async () => {
         try {
           await incrementLinkClick(link.id);
@@ -48,25 +47,13 @@ export default function PublicLinktreeClient({
         }
       }, 0);
     } catch (error) {
-      console.error("Error in link click handler:", error);
+      console.error("Error opening link:", error);
     }
 
     // Reset loading state
     setTimeout(() => {
       setLoadingLinkId(null);
     }, 500);
-
-    // Fallback for cases where window.open might fail
-    if (!newWindow) {
-      // If popup was blocked, try location.href as fallback
-      try {
-        window.location.href = link.url;
-      } catch (error) {
-        console.error("Failed to open link:", error);
-        // Reset loading state if all fails
-        setLoadingLinkId(null);
-      }
-    }
   };
 
   // Function to render icon (image or emoji)
@@ -111,7 +98,6 @@ export default function PublicLinktreeClient({
                       companyLogo={profile.company_logo}
                       size="xl"
                     />
-                    {/* Enhanced border for better visibility - WHITE RING REMOVED */}
                   </div>
                 </div>
 

@@ -16,14 +16,9 @@ import { platformConfigs } from "@/lib/platform-configs";
 import {
   Eye,
   ExternalLink,
-  BarChart3,
   User,
   RefreshCw,
-  Maximize2,
-  Minimize2,
   Sparkles,
-  TrendingUp,
-  X,
   Loader2,
 } from "lucide-react";
 import Image from "next/image";
@@ -42,7 +37,6 @@ export default function PreviewSidebar({
   links,
 }: PreviewSidebarProps) {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [loadingLinkId, setLoadingLinkId] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -66,7 +60,7 @@ export default function PreviewSidebar({
   const handleLinkClick = async (link: LinktreeLink) => {
     setLoadingLinkId(link.id);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 300)); // Reduced delay
+      await new Promise((resolve) => setTimeout(resolve, 300));
       window.open(link.url, "_blank", "noopener,noreferrer");
     } finally {
       setLoadingLinkId(null);
@@ -87,7 +81,7 @@ export default function PreviewSidebar({
       );
     }
     return (
-      <span className={isFullscreen ? "text-2xl" : "text-xl lg:text-2xl"}>
+      <span className="text-lg sm:text-xl lg:text-2xl">
         {icon}
       </span>
     );
@@ -126,44 +120,12 @@ export default function PreviewSidebar({
     profileForm?.text_color || "#ffffff"
   );
 
-  const getBackgroundDisplayName = () => {
-    switch (backgroundSettings.type) {
-      case "solid":
-        return "Solid Color";
-      case "hyperspeed":
-        return "Hyperspeed";
-      case "silk":
-        return "Silk";
-      case "squares":
-        return "Animated Squares";
-      case "iridescence":
-        return "Iridescence";
-      default:
-        return "Unknown";
-    }
-  };
-
-  const getBackgroundIcon = () => {
-    switch (backgroundSettings.type) {
-      case "hyperspeed":
-        return "🚀";
-      case "silk":
-        return "✨";
-      case "squares":
-        return "⬜";
-      case "iridescence":
-        return "🌈";
-      default:
-        return "🎨";
-    }
-  };
-
   if (!profile && !profileForm?.username) {
     return (
       <div className="w-full">
         <div className="sticky top-4 lg:top-6">
           <Card className="overflow-hidden border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
-            <CardContent className="p-6 lg:p-8 text-center">
+            <CardContent className="p-4 sm:p-6 lg:p-8 text-center">
               <div className="animate-pulse">
                 <User className="mx-auto h-12 w-12 lg:h-16 lg:w-16 text-gray-300 dark:text-gray-600 mb-4 lg:mb-6" />
                 <div className="space-y-3">
@@ -191,8 +153,8 @@ export default function PreviewSidebar({
               <div className="flex items-center gap-2 lg:gap-3">
                 <div className="relative">
                   <Eye
-                    size={16}
-                    className="lg:w-5 lg:h-5 text-indigo-600 dark:text-indigo-400"
+                    size={14}
+                    className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-indigo-600 dark:text-indigo-400"
                   />
                   <Sparkles
                     size={8}
@@ -200,7 +162,7 @@ export default function PreviewSidebar({
                   />
                 </div>
                 <div>
-                  <CardTitle className="text-base lg:text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  <CardTitle className="text-sm sm:text-base lg:text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                     Live Preview
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">
@@ -212,28 +174,13 @@ export default function PreviewSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="p-1.5 lg:p-2 h-7 w-7 lg:h-8 lg:w-8 hover:bg-indigo-100 dark:hover:bg-gray-700 transition-colors"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  title={
-                    isFullscreen ? "Exit Fullscreen" : "Fullscreen Preview"
-                  }
-                >
-                  {isFullscreen ? (
-                    <Minimize2 size={12} className="lg:w-4 lg:h-4" />
-                  ) : (
-                    <Maximize2 size={12} className="lg:w-4 lg:h-4" />
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-1.5 lg:p-2 h-7 w-7 lg:h-8 lg:w-8 hover:bg-indigo-100 dark:hover:bg-gray-700 transition-colors"
+                  className="p-1.5 lg:p-2 h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 hover:bg-indigo-100 dark:hover:bg-gray-700 transition-colors"
                   onClick={handleRefresh}
                   title="Refresh Preview"
                 >
                   <RefreshCw
-                    size={12}
-                    className={`lg:w-4 lg:h-4 ${
+                    size={10}
+                    className={`sm:w-3 sm:h-3 lg:w-4 lg:h-4 ${
                       refreshKey > 0 ? "animate-spin" : ""
                     }`}
                   />
@@ -243,67 +190,40 @@ export default function PreviewSidebar({
           </CardHeader>
 
           <CardContent className="p-0">
-            {/* OPTIMIZED: Larger preview container with better aspect ratio */}
+            {/* Enhanced Preview container - Much larger on mobile */}
             <div
               ref={previewRef}
               key={`${refreshKey}-${JSON.stringify(backgroundSettings)}`}
-              className={`relative transition-all duration-500 ease-in-out ${
-                isFullscreen
-                  ? "fixed inset-0 z-50"
-                  : "aspect-[9/16] h-[500px] sm:h-[600px] lg:h-[750px] xl:h-[800px]" // INCREASED SIZE
-              }`}
+              className="relative transition-all duration-500 ease-in-out aspect-[9/16] w-full h-[650px] sm:h-[750px] md:h-[850px] lg:h-[900px] xl:h-[1000px]"
             >
               {/* Background Layer */}
-              <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute inset-0 overflow-hidden rounded-b-lg">
                 <BackgroundWrapper settings={backgroundSettings} />
               </div>
 
               {/* Enhanced Readability Overlay */}
               {backgroundSettings.type !== "solid" && (
-                <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+                <div className="absolute inset-0 bg-black/20 pointer-events-none rounded-b-lg" />
               )}
 
               {/* Content Layer */}
               <div className="relative z-10 h-full">
-                <div
-                  className={`h-full flex flex-col ${
-                    isFullscreen ? "max-w-sm mx-auto p-8" : "p-5 lg:p-6" // INCREASED PADDING
-                  }`}
-                >
-                  {/* Fullscreen Close Button */}
-                  {isFullscreen && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-4 right-4 z-30 bg-black/20 hover:bg-black/40 text-white border border-white/20 rounded-full p-2 backdrop-blur-sm"
-                      onClick={() => setIsFullscreen(false)}
-                    >
-                      <X size={16} />
-                    </Button>
-                  )}
-
-                  {/* Profile Section - Optimized spacing */}
-                  <div
-                    className={`text-center flex-shrink-0 ${
-                      isFullscreen ? "pt-8 pb-6" : "pt-4 lg:pt-6 pb-4 lg:pb-5" // BETTER SPACING
-                    }`}
-                  >
-                    <div className="flex justify-center mb-4 lg:mb-5">
+                <div className="h-full flex flex-col p-4 sm:p-5 lg:p-6">
+                  {/* Profile Section - Better mobile spacing */}
+                  <div className="text-center flex-shrink-0 pt-6 sm:pt-8 lg:pt-10 pb-4 sm:pb-5 lg:pb-6">
+                    <div className="flex justify-center mb-4 sm:mb-5 lg:mb-6">
                       <div className="relative">
                         <EnhancedProfilePicture
                           profilePicture={profileForm?.profile_picture || ""}
                           companyLogo={profileForm?.company_logo || ""}
-                          size={isFullscreen ? "xl" : "lg"}
+                          size="lg"
                         />
-                        {/* Ring removed */}
                       </div>
                     </div>
 
-                    <div className="space-y-3 lg:space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <h3
-                        className={`font-bold px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 ${
-                          isFullscreen ? "text-2xl" : "text-lg lg:text-xl" // LARGER TEXT
-                        }`}
+                        className="font-bold px-3 sm:px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 text-base sm:text-lg lg:text-xl max-w-xs mx-auto"
                         style={{
                           color: contrastTextColor,
                           textShadow:
@@ -316,9 +236,7 @@ export default function PreviewSidebar({
                       </h3>
                       {profileForm?.bio && (
                         <p
-                          className={`leading-relaxed max-w-sm mx-auto px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 ${
-                            isFullscreen ? "text-sm" : "text-sm lg:text-base" // LARGER BIO TEXT
-                          }`}
+                          className="leading-relaxed max-w-xs mx-auto px-3 sm:px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 text-sm sm:text-base"
                           style={{
                             color: contrastTextColor,
                             textShadow:
@@ -331,17 +249,14 @@ export default function PreviewSidebar({
                     </div>
                   </div>
 
-                  {/* OPTIMIZED LINKS SECTION - Reduced hover effects */}
+                  {/* Links Section - Enhanced mobile experience */}
                   <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
-                    <div className="space-y-3 lg:space-y-4 pb-4 lg:pb-5">
-                      {" "}
-                      {/* INCREASED SPACING */}
+                    <div className="space-y-3 sm:space-y-4 pb-4 sm:pb-5 lg:pb-6">
                       {links.length > 0 ? (
                         <>
                           {links
-                            .slice(0, isFullscreen ? 12 : 8)
+                            .slice(0, 8)
                             .map((link, index) => {
-                              // SHOW MORE LINKS
                               const config = platformConfigs[link.platform];
                               const isLoading = loadingLinkId === link.id;
 
@@ -355,13 +270,13 @@ export default function PreviewSidebar({
                                   className={`w-full group relative overflow-hidden rounded-full transition-all duration-200 cursor-pointer shadow-lg backdrop-blur-md border border-white/20 ${
                                     isLoading
                                       ? "opacity-70 cursor-not-allowed"
-                                      : "hover:scale-[1.01] active:scale-[0.99] hover:shadow-xl" // REDUCED ZOOM EFFECTS
-                                  } ${isFullscreen ? "p-5" : "p-4 lg:p-5"}`} // BETTER PADDING
+                                      : "hover:scale-[1.01] active:scale-[0.99] hover:shadow-xl"
+                                  } p-3 sm:p-4 lg:p-5`}
                                   style={{
                                     backgroundColor: `${getThemeColor()}E6`,
                                     boxShadow:
-                                      "0 6px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)", // REDUCED SHADOW
-                                    animationDelay: `${index * 50}ms`, // FASTER ANIMATION
+                                      "0 6px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2)",
+                                    animationDelay: `${index * 50}ms`,
                                   }}
                                 >
                                   {/* Subtle hover effect */}
@@ -371,20 +286,13 @@ export default function PreviewSidebar({
                                     }`}
                                   />
 
-                                  <div className="relative flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                                  <div className="relative flex items-center justify-between gap-3 sm:gap-4">
+                                    <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                                       <span className="flex-shrink-0">
-                                        {renderIcon(
-                                          config?.icon || "🔗",
-                                          isFullscreen ? 32 : 28
-                                        )}
+                                        {renderIcon(config?.icon || "🔗", 24)}
                                       </span>
                                       <span
-                                        className={`font-semibold text-white truncate ${
-                                          isFullscreen
-                                            ? "text-lg"
-                                            : "text-base lg:text-lg" // LARGER TEXT
-                                        }`}
+                                        className="font-semibold text-white truncate text-sm sm:text-base lg:text-lg"
                                         style={{
                                           textShadow:
                                             "1px 1px 2px rgba(0,0,0,0.5)",
@@ -397,44 +305,37 @@ export default function PreviewSidebar({
                                     {/* Loading spinner or external link icon */}
                                     {isLoading ? (
                                       <Loader2
-                                        size={isFullscreen ? 20 : 18}
-                                        className="text-white animate-spin flex-shrink-0"
+                                        size={16}
+                                        className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white animate-spin flex-shrink-0"
                                       />
                                     ) : (
                                       <ExternalLink
-                                        size={isFullscreen ? 20 : 18}
-                                        className="text-white/80 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0" // REDUCED TRANSLATION
+                                        size={16}
+                                        className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white/80 group-hover:text-white group-hover:translate-x-0.5 transition-all duration-200 flex-shrink-0"
                                       />
                                     )}
                                   </div>
                                 </button>
                               );
                             })}
-                          {links.length > (isFullscreen ? 12 : 8) && (
+                          {links.length > 8 && (
                             <div className="text-center py-2">
                               <Badge
                                 variant="secondary"
-                                className="bg-black/20 text-white border-0 backdrop-blur-sm rounded-full"
+                                className="bg-black/20 text-white border-0 backdrop-blur-sm rounded-full text-xs sm:text-sm"
                               >
-                                +{links.length - (isFullscreen ? 12 : 8)} more
-                                links
+                                +{links.length - 8} more links
                               </Badge>
                             </div>
                           )}
                         </>
                       ) : (
-                        <div className="text-center py-8 lg:py-12">
-                          <div
-                            className={`mb-3 opacity-50 ${
-                              isFullscreen ? "text-5xl" : "text-4xl lg:text-5xl"
-                            }`}
-                          >
+                        <div className="text-center py-8 sm:py-10 lg:py-12">
+                          <div className="mb-3 opacity-50 text-3xl sm:text-4xl lg:text-5xl">
                             🔗
                           </div>
                           <p
-                            className={`opacity-70 px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 ${
-                              isFullscreen ? "text-sm" : "text-sm lg:text-base"
-                            }`}
+                            className="opacity-70 px-3 sm:px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 text-sm sm:text-base max-w-xs mx-auto"
                             style={{
                               color: contrastTextColor,
                               textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
@@ -447,28 +348,20 @@ export default function PreviewSidebar({
                     </div>
                   </div>
 
-                  {/* Footer - Better spacing */}
-                  <div
-                    className={`text-center flex-shrink-0 space-y-2 ${
-                      isFullscreen ? "pt-4" : "pt-3 lg:pt-4"
-                    }`}
-                  >
+                  {/* Footer - Better mobile spacing */}
+                  <div className="text-center flex-shrink-0 space-y-2 pt-3 sm:pt-4 pb-2">
                     <div
-                      className={`flex items-center justify-center gap-2 opacity-70 px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 w-fit mx-auto ${
-                        isFullscreen ? "text-xs" : "text-xs lg:text-sm"
-                      }`}
+                      className="flex items-center justify-center gap-2 opacity-70 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg backdrop-blur-sm bg-black/20 w-fit mx-auto text-xs sm:text-sm"
                       style={{
                         color: contrastTextColor,
                         textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
                       }}
                     >
-                      <Eye size={12} />
+                      <Eye size={10} className="sm:w-3 sm:h-3" />
                       <span>{profile?.view_count || 0} views</span>
                     </div>
                     <p
-                      className={`opacity-50 px-4 py-2 rounded-lg backdrop-blur-sm bg-black/20 w-fit mx-auto ${
-                        isFullscreen ? "text-xs" : "text-xs lg:text-sm"
-                      }`}
+                      className="opacity-50 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg backdrop-blur-sm bg-black/20 w-fit mx-auto text-xs sm:text-sm"
                       style={{
                         color: contrastTextColor,
                         textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
@@ -480,79 +373,6 @@ export default function PreviewSidebar({
                 </div>
               </div>
             </div>
-
-            {/* Compact Stats Section */}
-            {!isFullscreen && (
-              <div className="p-3 lg:p-4 space-y-3 bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border-t border-gray-100 dark:border-gray-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp
-                      size={12}
-                      className="lg:w-4 lg:h-4 text-indigo-600"
-                    />
-                    <span className="text-xs lg:text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Analytics
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 lg:h-7 px-2 lg:px-3 text-xs hover:bg-indigo-100 dark:hover:bg-gray-700 rounded-full"
-                  >
-                    <BarChart3 size={10} className="lg:w-3 lg:h-3" />
-                    <span className="ml-1 hidden sm:inline">View All</span>
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 lg:gap-3">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg lg:rounded-xl p-2 lg:p-3 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-xl lg:text-2xl font-bold text-indigo-600">
-                        {links.length}
-                      </div>
-                      <div className="p-1 lg:p-1.5 bg-indigo-100 dark:bg-indigo-900 rounded-md lg:rounded-lg">
-                        <ExternalLink
-                          size={10}
-                          className="lg:w-3 lg:h-3 text-indigo-600 dark:text-indigo-400"
-                        />
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                      Active Links
-                    </div>
-                  </div>
-
-                  <div className="bg-white dark:bg-gray-800 rounded-lg lg:rounded-xl p-2 lg:p-3 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-xl lg:text-2xl font-bold text-purple-600">
-                        {links.reduce((sum, link) => sum + link.click_count, 0)}
-                      </div>
-                      <div className="p-1 lg:p-1.5 bg-purple-100 dark:bg-purple-900 rounded-md lg:rounded-lg">
-                        <TrendingUp
-                          size={10}
-                          className="lg:w-3 lg:h-3 text-purple-600 dark:text-purple-400"
-                        />
-                      </div>
-                    </div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                      Total Clicks
-                    </div>
-                  </div>
-                </div>
-
-                {/* Background Type Indicator */}
-                <div className="flex justify-center pt-1 lg:pt-2">
-                  <div className="bg-black/60 backdrop-blur-md px-2 lg:px-3 py-1 lg:py-1.5 rounded-full border border-white/20">
-                    <div className="flex items-center gap-1 lg:gap-2 text-white text-xs">
-                      <span>{getBackgroundIcon()}</span>
-                      <span className="font-medium">
-                        {getBackgroundDisplayName()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
