@@ -56,7 +56,8 @@ export default function FileUpload({
       setUploading(true);
       console.log('Starting upload:', { fileName: file.name, fileSize: file.size, bucket });
       
-      const result = await uploadImage(file, bucket);
+      // Pass currentImage to enable old image deletion
+      const result = await uploadImage(file, bucket, currentImage);
       
       console.log('Upload result:', result);
       

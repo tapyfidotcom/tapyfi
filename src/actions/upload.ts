@@ -15,9 +15,32 @@ const supabaseAdmin = createClient(
   }
 );
 
+// Helper function to extract file path from Supabase URL
+const getFilePathFromUrl = (url: string, bucket: string): string | null => {
+  if (!url) return null;
+  
+  try {
+    // Supabase URL format: https://[project].supabase.co/storage/v1/object/public/[bucket]/[path]
+    const urlParts = url.split('/');
+    const bucketIndex = urlParts.findIndex(part => part === bucket);
+    
+    if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+      // Get everything after the bucket name
+      const pathParts = urlParts.slice(bucketIndex + 1);
+      return pathParts.join('/');
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error extracting file path from URL:', error);
+    return null;
+  }
+};
+
 export const uploadImage = async (
   file: File, 
-  bucket: 'profile-pictures' | 'company-logos'
+  bucket: 'profile-pictures' | 'company-logos',
+  currentImageUrl?: string
 ) => {
   try {
     const clerkUser = await currentUser();
@@ -48,6 +71,29 @@ export const uploadImage = async (
 
     if (file.size > 5 * 1024 * 1024) {
       return { success: false, message: "File size must be less than 5MB" };
+    }
+
+    // Delete old image if it exists
+    if (currentImageUrl) {
+      const oldFilePath = getFilePathFromUrl(currentImageUrl, bucket);
+      if (oldFilePath) {
+        console.log('Attempting to delete old image:', oldFilePath);
+        try {
+          const { error: deleteError } = await supabaseAdmin.storage
+            .from(bucket)
+            .remove([oldFilePath]);
+          
+          if (deleteError) {
+            console.error('Failed to delete old image:', deleteError);
+            // Continue with upload even if deletion fails
+          } else {
+            console.log('Successfully deleted old image:', oldFilePath);
+          }
+        } catch (deleteError) {
+          console.error('Error during old image deletion:', deleteError);
+          // Continue with upload even if deletion fails
+        }
+      }
     }
 
     // Generate unique filename with user folder structure
@@ -118,6 +164,24 @@ export const deleteImage = async (
     return { success: true };
   } catch (error: any) {
     console.error('Delete error:', error);
+    return { success: false, message: error.message };
+  }
+};
+
+// New function to delete image by URL (useful for manual cleanup)
+export const deleteImageByUrl = async (
+  imageUrl: string,
+  bucket: 'profile-pictures' | 'company-logos'
+) => {
+  try {
+    const filePath = getFilePathFromUrl(imageUrl, bucket);
+    if (!filePath) {
+      return { success: false, message: "Invalid image URL" };
+    }
+
+    return await deleteImage(filePath, bucket);
+  } catch (error: any) {
+    console.error('Delete by URL error:', error);
     return { success: false, message: error.message };
   }
 };

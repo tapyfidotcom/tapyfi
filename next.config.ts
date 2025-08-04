@@ -14,6 +14,17 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  // Configure images for Supabase
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nuhigjvmtswhukeckjee.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+  },
   // Only use this for development
   async headers() {
     return [
