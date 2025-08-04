@@ -19,6 +19,7 @@ import {
   Users,
   Globe
 } from "lucide-react";
+import Image from "next/image";
 
 interface AnalyticsTabProps {
   profile: LinktreeProfile | null;
@@ -142,6 +143,22 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
       case '30d': return 'Last 30 days';
       case '90d': return 'Last 90 days';
     }
+  };
+
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string, size: number = 24) => {
+    if (typeof icon === 'string' && icon.startsWith('/assets/')) {
+      return (
+        <Image
+          src={icon}
+          alt="Platform icon"
+          width={size}
+          height={size}
+          className="object-contain"
+        />
+      );
+    }
+    return <span className="text-xl">{icon}</span>;
   };
 
   if (!profile) {
@@ -293,7 +310,9 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
                             <Badge variant="secondary" className="w-8 h-8 rounded-full p-0 flex items-center justify-center">
                               #{index + 1}
                             </Badge>
-                            <div className="text-xl">{config?.icon || '🔗'}</div>
+                            <div className="flex-shrink-0">
+                              {renderIcon(config?.icon || '🔗', 24)}
+                            </div>
                             <div className="flex-1 min-w-0">
                               <h4 className="font-medium truncate">{link.title}</h4>
                               <p className="text-sm text-muted-foreground truncate">{link.url}</p>
