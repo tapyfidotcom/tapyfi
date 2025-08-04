@@ -5,6 +5,7 @@ import { platformConfigs, platformCategories } from "@/lib/platform-configs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
+import Image from "next/image";
 
 interface PlatformSelectorProps {
   onSelect: (platform: string) => void;
@@ -26,6 +27,22 @@ export default function PlatformSelector({ onSelect, onClose }: PlatformSelector
     acc[category] = filteredPlatforms.filter(([, config]) => config.category === category);
     return acc;
   }, {} as Record<string, Array<[string, any]>>);
+
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string) => {
+    if (typeof icon === 'string' && icon.startsWith('/assets/')) {
+      return (
+        <Image
+          src={icon}
+          alt="Platform icon"
+          width={32}
+          height={32}
+          className="object-contain"
+        />
+      );
+    }
+    return <span className="text-2xl">{icon}</span>;
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -87,7 +104,7 @@ export default function PlatformSelector({ onSelect, onClose }: PlatformSelector
                       className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-accent"
                       onClick={() => onSelect(key)}
                     >
-                      <span className="text-2xl">{config.icon}</span>
+                      {renderIcon(config.icon)}
                       <span className="text-sm font-medium text-center">{config.name}</span>
                     </Button>
                   ))}

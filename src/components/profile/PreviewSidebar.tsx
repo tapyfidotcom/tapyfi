@@ -22,6 +22,7 @@ import {
   X,
   Loader2
 } from "lucide-react";
+import Image from "next/image";
 
 interface PreviewSidebarProps {
   profile: LinktreeProfile | null;
@@ -66,6 +67,22 @@ export default function PreviewSidebar({
     } finally {
       setLoadingLinkId(null);
     }
+  };
+
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string, size: number = 24) => {
+    if (typeof icon === 'string' && icon.startsWith('/assets/')) {
+      return (
+        <Image
+          src={icon}
+          alt="Platform icon"
+          width={size}
+          height={size}
+          className="object-contain"
+        />
+      );
+    }
+    return <span className={isFullscreen ? 'text-2xl' : 'text-xl lg:text-2xl'}>{icon}</span>;
   };
 
   const getContrastColor = (bgColor: string | string[], textColor: string = '#ffffff'): string => {
@@ -299,10 +316,8 @@ export default function PreviewSidebar({
                                 
                                 <div className="relative flex items-center justify-between gap-4">
                                   <div className="flex items-center gap-4 min-w-0 flex-1">
-                                    <span className={`flex-shrink-0 ${
-                                      isFullscreen ? 'text-2xl' : 'text-xl lg:text-2xl' // LARGER ICONS
-                                    }`}>
-                                      {config?.icon || '🔗'}
+                                    <span className="flex-shrink-0">
+                                      {renderIcon(config?.icon || '🔗', isFullscreen ? 32 : 28)}
                                     </span>
                                     <span 
                                       className={`font-semibold text-white truncate ${

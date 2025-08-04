@@ -6,47 +6,49 @@ import { generatePlatformLink } from "@/lib/link-generators";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Eye, EyeOff } from "lucide-react";
+import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { CreateLinktreeLink } from "@/interfaces/linktree";
+import Image from "next/image";
 
 interface LinkFormProps {
   platform: string;
   initialData?: Partial<CreateLinktreeLink>;
-  onSave: (linkData: CreateLinktreeLink) => void;
+  onSave: (linkData: CreateLinktreeLink) => Promise<void> | void;
   onCancel: () => void;
   isEditing?: boolean;
 }
 
-export default function LinkForm({ 
-  platform, 
-  initialData, 
-  onSave, 
-  onCancel, 
-  isEditing = false 
+export default function LinkForm({
+  platform,
+  initialData,
+  onSave,
+  onCancel,
+  isEditing = false,
 }: LinkFormProps) {
   const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    input: '',
-    url: initialData?.url || ''
+    title: initialData?.title || "",
+    input: "",
+    url: initialData?.url || "",
   });
   const [showPreview, setShowPreview] = useState(false);
-  
+  const [isLoading, setIsLoading] = useState(false);
+
   // Fix: Initialize with proper structure matching the expected type
   const [generatedLink, setGeneratedLink] = useState<{
     url: string;
     isValid: boolean;
     error: string;
-  }>({ 
-    url: '', 
-    isValid: false, 
-    error: '' 
+  }>({
+    url: "",
+    isValid: false,
+    error: "",
   });
 
   const config = platformConfigs[platform];
 
   useEffect(() => {
     if (initialData?.url && !formData.input) {
-      setFormData(prev => ({ ...prev, url: initialData.url! }));
+      setFormData((prev) => ({ ...prev, url: initialData.url! }));
     }
   }, [initialData, formData.input]);
 
@@ -57,35 +59,58 @@ export default function LinkForm({
       setGeneratedLink({
         url: result.url,
         isValid: result.isValid,
-        error: result.error || ''
+        error: result.error || "",
       });
       if (result.isValid) {
-        setFormData(prev => ({ ...prev, url: result.url }));
+        setFormData((prev) => ({ ...prev, url: result.url }));
       }
     } else {
-      setGeneratedLink({ url: '', isValid: false, error: '' });
+      setGeneratedLink({ url: "", isValid: false, error: "" });
     }
   }, [formData.input, platform]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
       return;
     }
 
-    if (platform === 'custom') {
+    if (platform === "custom") {
       if (!formData.url.trim()) return;
     } else {
       if (!formData.input.trim() || !generatedLink.isValid) return;
     }
 
-    onSave({
-      platform,
-      title: formData.title.trim(),
-      url: formData.url,
-      icon: config?.icon
-    });
+    setIsLoading(true);
+    try {
+      await onSave({
+        platform,
+        title: formData.title.trim(),
+        url: formData.url,
+        icon: config?.icon,
+      });
+    } catch (error) {
+      console.error("Error saving link:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string, size: number = 24) => {
+    if (icon?.startsWith("/assets/")) {
+      return (
+        <Image
+          src={icon}
+          alt={config?.name || "Platform"}
+          width={size}
+          height={size}
+          className="object-contain"
+        />
+      );
+    }
+    return <span className="text-2xl">{icon}</span>;
   };
 
   if (!config) {
@@ -96,18 +121,29 @@ export default function LinkForm({
     );
   }
 
+  const isSubmitDisabled =
+    isLoading ||
+    !formData.title.trim() ||
+    (platform !== "custom" &&
+      (!formData.input.trim() || !generatedLink.isValid));
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-card rounded-xl shadow-xl w-full max-w-md">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{config.icon}</span>
+            {renderIcon(config.icon, 32)}
             <h2 className="text-lg font-semibold">
-              {isEditing ? 'Edit' : 'Add'} {config.name}
+              {isEditing ? "Edit" : "Add"} {config.name}
             </h2>
           </div>
-          <Button variant="ghost" size="sm" onClick={onCancel}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
             <X size={20} />
           </Button>
         </div>
@@ -121,14 +157,17 @@ export default function LinkForm({
               id="title"
               placeholder={`My ${config.name}`}
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               className="mt-1"
+              disabled={isLoading}
               required
             />
           </div>
 
           {/* Platform Input */}
-          {platform === 'custom' ? (
+          {platform === "custom" ? (
             <div>
               <Label htmlFor="url">Website URL</Label>
               <Input
@@ -136,28 +175,40 @@ export default function LinkForm({
                 type="url"
                 placeholder="https://yourwebsite.com"
                 value={formData.url}
-                onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, url: e.target.value }))
+                }
                 className="mt-1"
+                disabled={isLoading}
                 required
               />
             </div>
           ) : (
             <div>
               <Label htmlFor="input">
-                {config.name} {config.inputType === 'phone' ? 'Phone Number' : 
-                              config.inputType === 'email' ? 'Email' : 'Username/Handle'}
+                {config.name}{" "}
+                {config.inputType === "phone"
+                  ? "Phone Number"
+                  : config.inputType === "email"
+                  ? "Email"
+                  : "Username/Handle"}
               </Label>
               <Input
                 id="input"
                 type={config.inputType}
                 placeholder={config.placeholder}
                 value={formData.input}
-                onChange={(e) => setFormData(prev => ({ ...prev, input: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, input: e.target.value }))
+                }
                 className="mt-1"
+                disabled={isLoading}
                 required
               />
               {generatedLink.error && (
-                <p className="text-sm text-destructive mt-1">{generatedLink.error}</p>
+                <p className="text-sm text-destructive mt-1">
+                  {generatedLink.error}
+                </p>
               )}
             </div>
           )}
@@ -172,6 +223,7 @@ export default function LinkForm({
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowPreview(!showPreview)}
+                  disabled={isLoading}
                 >
                   {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
@@ -186,16 +238,22 @@ export default function LinkForm({
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              className="flex-1"
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1"
-              disabled={!formData.title.trim() || 
-                       (platform !== 'custom' && (!formData.input.trim() || !generatedLink.isValid))}
+              disabled={isSubmitDisabled}
             >
-              {isEditing ? 'Update' : 'Add'} Link
+              {isLoading && <Loader2 className="animate-spin mr-2" size={16} />}
+              {isEditing ? "Update" : "Add"} Link
             </Button>
           </div>
         </form>

@@ -7,6 +7,7 @@ import { ExternalLink, Eye } from "lucide-react";
 import BackgroundWrapper from "@/components/ui/background-wrapper";
 import EnhancedProfilePicture from "@/components/ui/enhanced-profile-picture";
 import { BackgroundSettings, getPrimaryColor, ensureIridescenceColor } from "@/types/profile";
+import Image from "next/image";
 
 interface PublicLinktreeProps {
   profile: LinktreeProfile & { linktree_links: LinktreeLink[] };
@@ -15,6 +16,22 @@ interface PublicLinktreeProps {
 export default function PublicLinktree({ profile }: PublicLinktreeProps) {
   const handleLinkClick = async (link: LinktreeLink) => {
     window.open(link.url, '_blank', 'noopener,noreferrer');
+  };
+
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string, size: number = 24) => {
+    if (typeof icon === 'string' && icon.startsWith('/assets/')) {
+      return (
+        <Image
+          src={icon}
+          alt="Platform icon"
+          width={size}
+          height={size}
+          className="object-contain"
+        />
+      );
+    }
+    return <span className="text-2xl">{icon}</span>;
   };
 
   const getBackgroundSettings = (): BackgroundSettings => {
@@ -131,8 +148,6 @@ export default function PublicLinktree({ profile }: PublicLinktreeProps) {
                 companyLogo={profile.company_logo}
                 size="xl"
               />
-              {/* Enhanced border for better visibility */}
-              <div className="absolute inset-0 rounded-full ring-4 ring-white/30 ring-offset-4 ring-offset-transparent pointer-events-none" />
             </div>
           </div>
 
@@ -181,7 +196,9 @@ export default function PublicLinktree({ profile }: PublicLinktreeProps) {
                     }}
                   >
                     <div className="flex items-center gap-4">
-                      <span className="text-2xl flex-shrink-0">{config?.icon || '🔗'}</span>
+                      <span className="flex-shrink-0">
+                        {renderIcon(config?.icon || '🔗', 32)}
+                      </span>
                       <span className="text-left text-lg">{link.title}</span>
                     </div>
                     <ExternalLink 

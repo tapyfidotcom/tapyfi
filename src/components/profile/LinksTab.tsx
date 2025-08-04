@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
 import { platformConfigs } from "@/lib/platform-configs";
 import { Link as LinkIcon, Plus, Edit3, Trash2, Loader2, BarChart3 } from "lucide-react";
+import Image from "next/image";
 
 interface LinksTabProps {
   profile: LinktreeProfile | null;
@@ -32,6 +33,22 @@ export default function LinksTab({
     } finally {
       setLoadingLinkId(null);
     }
+  };
+
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string, size: number = 24) => {
+    if (typeof icon === 'string' && icon.startsWith('/assets/')) {
+      return (
+        <Image
+          src={icon}
+          alt="Platform icon"
+          width={size}
+          height={size}
+          className="object-contain"
+        />
+      );
+    }
+    return <span className="text-2xl">{icon}</span>;
   };
 
   return (
@@ -84,7 +101,9 @@ export default function LinksTab({
                         key={link.id}
                         className="flex items-center gap-4 p-4 border rounded-xl hover:bg-accent/50 transition-colors"
                       >
-                        <div className="text-2xl flex-shrink-0">{config?.icon || '🔗'}</div>
+                        <div className="flex-shrink-0">
+                          {renderIcon(config?.icon || '🔗', 32)}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium truncate">{link.title}</h3>
                           <p className="text-sm text-muted-foreground truncate">
