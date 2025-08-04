@@ -13,26 +13,35 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Palette,
   Settings2,
   MousePointer,
-  Zap,
-  Grid3x3,
   Sparkles,
   Plus,
   Minus,
+  Search,
+  Filter,
 } from "lucide-react";
 import { BackgroundSettings } from "@/types/profile";
+import { 
+  gradientPresets, 
+  getPresetsByCategory, 
+  searchPresets, 
+  convertPresetToBackgroundSettings,
+  GradientPreset 
+} from "@/lib/gradient-presets";
 
 interface BackgroundSelectorProps {
   currentBackground: BackgroundSettings;
   onBackgroundChange: (background: BackgroundSettings) => void;
+  profileId?: string;
   className?: string;
 }
 
 const backgroundTypes = [
-  { type: "solid", name: "Solid", category: "Basic", icon: "🎨" },
+  { type: "solid", name: "Gradient", category: "Basic", icon: "🎨" },
   { type: "hyperspeed", name: "Hyperspeed", category: "Motion", icon: "🚀" },
   { type: "silk", name: "Silk", category: "Texture", icon: "✨" },
   { type: "squares", name: "Squares", category: "Motion", icon: "⬜" },
@@ -64,11 +73,18 @@ const squareDirections = [
   { value: "diagonal", label: "Diagonal" },
 ];
 
+const categories = ["All", "Warm", "Cool", "Nature", "Sunset", "Ocean", "Modern", "Classic"];
+
 export default function BackgroundSelector({
   currentBackground,
   onBackgroundChange,
+  profileId,
   className = "",
 }: BackgroundSelectorProps) {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showPresets, setShowPresets] = useState(false);
+
   const updateBackground = useCallback(
     (updates: Partial<BackgroundSettings>) => {
       onBackgroundChange({
@@ -79,8 +95,31 @@ export default function BackgroundSelector({
     [currentBackground, onBackgroundChange]
   );
 
+  // Filter presets based on category and search
+  const filteredPresets = React.useMemo(() => {
+    let presets = gradientPresets;
+    
+    if (selectedCategory !== "All") {
+      presets = getPresetsByCategory(selectedCategory);
+    }
+    
+    if (searchQuery) {
+      presets = searchPresets(searchQuery);
+    }
+    
+    return presets;
+  }, [selectedCategory, searchQuery]);
+
+  const handlePresetSelect = (preset: GradientPreset) => {
+    const newSettings = convertPresetToBackgroundSettings(preset);
+    updateBackground(newSettings);
+  };
+
   const handleBackgroundTypeChange = useCallback(
     (type: BackgroundSettings["type"]) => {
+      // Set showPresets to true only for solid type
+      setShowPresets(type === "solid");
+      
       let defaultColor: string | string[] = "#6366f1";
 
       switch (type) {
@@ -130,11 +169,7 @@ export default function BackgroundSelector({
         newSettings.noiseIntensity = 1.5;
         newSettings.rotation = 0;
       } else if (type === "iridescence") {
-        newSettings.iridescenceColor = [0.3, 0.2, 0.5] as [
-          number,
-          number,
-          number
-        ];
+        newSettings.iridescenceColor = [0.3, 0.2, 0.5] as [number, number, number];
         newSettings.amplitude = 0.1;
         newSettings.mouseReact = false;
         newSettings.brightness = 1;
@@ -181,7 +216,6 @@ export default function BackgroundSelector({
   };
 
   // Iridescence color management
-
   const handleIridescenceColorChange = (index: number, value: number) => {
     const currentColors = currentBackground.iridescenceColor || [0.3, 0.2, 0.5];
     const newColors: [number, number, number] = [...currentColors] as [
@@ -267,7 +301,7 @@ export default function BackgroundSelector({
                   type="color"
                   value={color}
                   onChange={(e) => handleColorChange(idx, e.target.value)}
-                  className="w-12 h-10 rounded-lg border-2 border-gray-200 cursor-pointer transition-all hover:border-gray-300"
+                  className="w-12 h-10 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer transition-all hover:border-gray-300 dark:hover:border-gray-600"
                 />
                 <div className="absolute inset-0 rounded-lg ring-2 ring-primary/20 opacity-0 hover:opacity-100 transition-opacity pointer-events-none" />
               </div>
@@ -283,7 +317,7 @@ export default function BackgroundSelector({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeGradientColor(idx)}
-                  className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                 >
                   <Minus size={12} />
                 </Button>
@@ -296,7 +330,7 @@ export default function BackgroundSelector({
         {currentBackground.type === "solid" &&
           Array.isArray(currentBackground.color) &&
           currentBackground.color.length > 1 && (
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700">
               <div>
                 <Label className="text-xs font-medium">Gradient Type</Label>
                 <Select
@@ -355,14 +389,14 @@ export default function BackgroundSelector({
           Background Style
         </Label>
 
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {backgroundTypes.map((bg) => (
             <Button
               key={bg.type}
               variant={
                 currentBackground.type === bg.type ? "default" : "outline"
               }
-              className="h-auto p-3 flex flex-col items-center gap-2 text-xs hover:scale-105 transition-all duration-200 relative overflow-hidden group"
+              className="h-auto p-4 flex flex-col items-center gap-2 text-xs hover:scale-105 transition-all duration-200 relative overflow-hidden group"
               onClick={() =>
                 handleBackgroundTypeChange(
                   bg.type as BackgroundSettings["type"]
@@ -370,9 +404,9 @@ export default function BackgroundSelector({
               }
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <span className="text-lg relative z-10">{bg.icon}</span>
-              <span className="font-medium relative z-10">{bg.name}</span>
-              <span className="text-xs text-muted-foreground relative z-10">
+              <span className="text-xl relative z-10">{bg.icon}</span>
+              <span className="font-medium relative z-10 text-center leading-tight">{bg.name}</span>
+              <span className="text-xs text-muted-foreground relative z-10 text-center">
                 {bg.category}
               </span>
             </Button>
@@ -380,17 +414,96 @@ export default function BackgroundSelector({
         </div>
       </div>
 
-      {/* Single Unified Settings Card */}
-      <Card className="shadow-lg">
+      {/* Enhanced Gradient Presets Section */}
+      {showPresets && currentBackground.type === "solid" && (
+        <Card className="shadow-lg border-primary/20 dark:border-primary/30">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg flex items-center gap-3">
+              <Sparkles size={18} />
+              Gradient Presets
+              <Badge variant="secondary" className="ml-auto">
+                {filteredPresets.length} presets
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Enhanced Search and Filter Controls */}
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="relative flex-1">
+                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search gradients..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 text-sm"
+                />
+              </div>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full sm:w-40 h-10">
+                  <Filter size={16} className="mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Enhanced Larger Gradient Cubes with Responsive Grid */}
+            <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border dark:border-gray-800">
+              <div className="grid grid-cols-4  sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-3 max-h-80 overflow-y-auto custom-scrollbar">
+                {filteredPresets.map((preset) => {
+                  const gradientStyle = preset.gradientType === 'radial' 
+                    ? `radial-gradient(circle, ${preset.colors.join(', ')})`
+                    : `linear-gradient(${preset.gradientDirection || 135}deg, ${preset.colors.join(', ')})`;
+
+                  return (
+                    <button
+                      key={preset.id}
+                      onClick={() => handlePresetSelect(preset)}
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md hover:shadow-xl hover:scale-110 transition-all duration-300 border-1 border-gray-200/60 dark:border-gray-700/60 hover:border-primary/60 dark:hover:border-primary/60 cursor-pointer group relative overflow-hidden"
+                      style={{ background: gradientStyle }}
+                      title={preset.name}
+                    >
+                      {/* Enhanced Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                      {/* Ring Effect on Hover */}
+                      <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-primary/30 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {filteredPresets.length === 0 && (
+              <div className="text-center py-12">
+                <Sparkles className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <p className="text-sm text-muted-foreground font-medium">
+                  No presets found
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Try adjusting your search or filter
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Enhanced Settings Card */}
+      <Card className="shadow-lg dark:shadow-xl">
         <CardHeader className="pb-4">
           <CardTitle className="text-lg flex items-center gap-2">
             <Settings2 size={18} />
             Background Settings
             <span className="text-sm font-normal text-muted-foreground ml-auto">
-              {
-                backgroundTypes.find((bg) => bg.type === currentBackground.type)
-                  ?.name
-              }
+              {backgroundTypes.find((bg) => bg.type === currentBackground.type)?.name}
             </span>
           </CardTitle>
         </CardHeader>
@@ -401,7 +514,7 @@ export default function BackgroundSelector({
           {/* Common Animation Controls */}
           {currentBackground.type !== "solid" && (
             <>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700">
                 <div>
                   <Label className="text-sm font-medium">Animation Speed</Label>
                   <div className="flex items-center gap-2 mt-2">
@@ -445,7 +558,7 @@ export default function BackgroundSelector({
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 pt-2">
                 <MousePointer size={14} className="text-muted-foreground" />
                 <Label className="text-sm font-medium">Mouse Interaction</Label>
                 <Switch
@@ -460,7 +573,7 @@ export default function BackgroundSelector({
 
           {/* Type-Specific Advanced Controls */}
           {currentBackground.type === "iridescence" && (
-            <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
               <Label className="text-sm font-medium text-primary">
                 Iridescence Settings
               </Label>
@@ -497,12 +610,78 @@ export default function BackgroundSelector({
                     }
                   />
                 </div>
+
+                <div>
+                  <Label className="text-xs font-medium">Brightness</Label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.05"
+                      value={currentBackground.brightness || 1}
+                      onChange={(e) =>
+                        updateBackground({
+                          brightness: parseFloat(e.target.value),
+                        })
+                      }
+                      className="flex-1"
+                    />
+                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                      {(currentBackground.brightness || 1).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs font-medium">Saturation</Label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.05"
+                      value={currentBackground.saturation || 1}
+                      onChange={(e) =>
+                        updateBackground({
+                          saturation: parseFloat(e.target.value),
+                        })
+                      }
+                      className="flex-1"
+                    />
+                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                      {(currentBackground.saturation || 1).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <Label className="text-xs font-medium">Reflection</Label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Input
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.05"
+                      value={currentBackground.reflection || 1}
+                      onChange={(e) =>
+                        updateBackground({
+                          reflection: parseFloat(e.target.value),
+                        })
+                      }
+                      className="flex-1"
+                    />
+                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                      {(currentBackground.reflection || 1).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
           {currentBackground.type === "hyperspeed" && (
-            <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
               <Label className="text-sm font-medium text-primary">
                 Hyperspeed Settings
               </Label>
@@ -531,9 +710,7 @@ export default function BackgroundSelector({
                 <div>
                   <Label className="text-xs font-medium">Distortion Type</Label>
                   <Select
-                    value={
-                      currentBackground.distortion || "turbulentDistortion"
-                    }
+                    value={currentBackground.distortion || "turbulentDistortion"}
                     onValueChange={(value) =>
                       updateBackground({ distortion: value })
                     }
@@ -602,7 +779,7 @@ export default function BackgroundSelector({
           )}
 
           {currentBackground.type === "silk" && (
-            <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
               <Label className="text-sm font-medium text-primary">
                 Silk Settings
               </Label>
@@ -649,10 +826,8 @@ export default function BackgroundSelector({
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-xs font-medium">
-                    Rotation (radians)
-                  </Label>
+                <div className="sm:col-span-2">
+                  <Label className="text-xs font-medium">Rotation (radians)</Label>
                   <div className="flex items-center gap-2 mt-2">
                     <Input
                       type="range"
@@ -677,7 +852,7 @@ export default function BackgroundSelector({
           )}
 
           {currentBackground.type === "squares" && (
-            <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
               <Label className="text-sm font-medium text-primary">
                 Squares Settings
               </Label>
@@ -737,7 +912,7 @@ export default function BackgroundSelector({
                       onChange={(e) =>
                         updateBackground({ borderColor: e.target.value })
                       }
-                      className="w-12 h-8 rounded border border-gray-300 cursor-pointer"
+                      className="w-12 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
                     />
                     <Input
                       type="text"
@@ -752,9 +927,7 @@ export default function BackgroundSelector({
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">
-                    Hover Fill Color
-                  </Label>
+                  <Label className="text-xs font-medium">Hover Fill Color</Label>
                   <div className="flex items-center gap-3 mt-2">
                     <input
                       type="color"
@@ -762,7 +935,7 @@ export default function BackgroundSelector({
                       onChange={(e) =>
                         updateBackground({ hoverFillColor: e.target.value })
                       }
-                      className="w-12 h-8 rounded border border-gray-300 cursor-pointer"
+                      className="w-12 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
                     />
                     <Input
                       type="text"
@@ -778,83 +951,31 @@ export default function BackgroundSelector({
               </div>
             </div>
           )}
-
-          {currentBackground.type === "iridescence" && (
-            <div className="space-y-4 pt-4 border-t">
-              <Label className="text-sm font-medium text-primary">
-                Iridescence Settings
-              </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs font-medium">Brightness</Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.05"
-                      value={currentBackground.brightness || 1}
-                      onChange={(e) =>
-                        updateBackground({
-                          brightness: parseFloat(e.target.value),
-                        })
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
-                      {(currentBackground.brightness || 1).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs font-medium">Saturation</Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.05"
-                      value={currentBackground.saturation || 1}
-                      onChange={(e) =>
-                        updateBackground({
-                          saturation: parseFloat(e.target.value),
-                        })
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
-                      {(currentBackground.saturation || 1).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <Label className="text-xs font-medium">Reflection</Label>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input
-                      type="range"
-                      min="0"
-                      max="2"
-                      step="0.05"
-                      value={currentBackground.reflection || 1}
-                      onChange={(e) =>
-                        updateBackground({
-                          reflection: parseFloat(e.target.value),
-                        })
-                      }
-                      className="flex-1"
-                    />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
-                      {(currentBackground.reflection || 1).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </CardContent>
       </Card>
+
+      {/* Custom Scrollbar Styles */}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(156, 163, 175, 0.4);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(156, 163, 175, 0.6);
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(75, 85, 99, 0.4);
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(75, 85, 99, 0.6);
+        }
+      `}</style>
     </div>
   );
 }
