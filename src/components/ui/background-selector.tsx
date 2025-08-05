@@ -25,12 +25,12 @@ import {
   Filter,
 } from "lucide-react";
 import { BackgroundSettings } from "@/types/profile";
-import { 
-  gradientPresets, 
-  getPresetsByCategory, 
-  searchPresets, 
+import {
+  gradientPresets,
+  getPresetsByCategory,
+  searchPresets,
   convertPresetToBackgroundSettings,
-  GradientPreset 
+  GradientPreset,
 } from "@/lib/gradient-presets";
 
 interface BackgroundSelectorProps {
@@ -73,7 +73,16 @@ const squareDirections = [
   { value: "diagonal", label: "Diagonal" },
 ];
 
-const categories = ["All", "Warm", "Cool", "Nature", "Sunset", "Ocean", "Modern", "Classic"];
+const categories = [
+  "All",
+  "Warm",
+  "Cool",
+  "Nature",
+  "Sunset",
+  "Ocean",
+  "Modern",
+  "Classic",
+];
 
 export default function BackgroundSelector({
   currentBackground,
@@ -98,15 +107,15 @@ export default function BackgroundSelector({
   // Filter presets based on category and search
   const filteredPresets = React.useMemo(() => {
     let presets = gradientPresets;
-    
+
     if (selectedCategory !== "All") {
       presets = getPresetsByCategory(selectedCategory);
     }
-    
+
     if (searchQuery) {
       presets = searchPresets(searchQuery);
     }
-    
+
     return presets;
   }, [selectedCategory, searchQuery]);
 
@@ -119,7 +128,7 @@ export default function BackgroundSelector({
     (type: BackgroundSettings["type"]) => {
       // Set showPresets to true only for solid type
       setShowPresets(type === "solid");
-      
+
       let defaultColor: string | string[] = "#6366f1";
 
       switch (type) {
@@ -136,7 +145,7 @@ export default function BackgroundSelector({
           defaultColor = "#000000";
           break;
         case "solid":
-          defaultColor = ["#6366f1", "#8b5cf6"]; // Default gradient
+          defaultColor = ["#a6c0fe", "#f68084"]; // Default gradient
           break;
       }
 
@@ -169,7 +178,11 @@ export default function BackgroundSelector({
         newSettings.noiseIntensity = 1.5;
         newSettings.rotation = 0;
       } else if (type === "iridescence") {
-        newSettings.iridescenceColor = [0.3, 0.2, 0.5] as [number, number, number];
+        newSettings.iridescenceColor = [0.3, 0.2, 0.5] as [
+          number,
+          number,
+          number
+        ];
         newSettings.amplitude = 0.1;
         newSettings.mouseReact = false;
         newSettings.brightness = 1;
@@ -405,7 +418,9 @@ export default function BackgroundSelector({
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <span className="text-xl relative z-10">{bg.icon}</span>
-              <span className="font-medium relative z-10 text-center leading-tight">{bg.name}</span>
+              <span className="font-medium relative z-10 text-center leading-tight">
+                {bg.name}
+              </span>
               <span className="text-xs text-muted-foreground relative z-10 text-center">
                 {bg.category}
               </span>
@@ -430,7 +445,10 @@ export default function BackgroundSelector({
             {/* Enhanced Search and Filter Controls */}
             <div className="flex flex-col gap-4 sm:flex-row">
               <div className="relative flex-1">
-                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                />
                 <Input
                   placeholder="Search gradients..."
                   value={searchQuery}
@@ -438,7 +456,10 @@ export default function BackgroundSelector({
                   className="pl-10 h-10 text-sm"
                 />
               </div>
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
                 <SelectTrigger className="w-full sm:w-40 h-10">
                   <Filter size={16} className="mr-2" />
                   <SelectValue />
@@ -457,9 +478,12 @@ export default function BackgroundSelector({
             <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border dark:border-gray-800">
               <div className="grid grid-cols-4  sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-3 max-h-80 overflow-y-auto custom-scrollbar">
                 {filteredPresets.map((preset) => {
-                  const gradientStyle = preset.gradientType === 'radial' 
-                    ? `radial-gradient(circle, ${preset.colors.join(', ')})`
-                    : `linear-gradient(${preset.gradientDirection || 135}deg, ${preset.colors.join(', ')})`;
+                  const gradientStyle =
+                    preset.gradientType === "radial"
+                      ? `radial-gradient(circle, ${preset.colors.join(", ")})`
+                      : `linear-gradient(${
+                          preset.gradientDirection || 135
+                        }deg, ${preset.colors.join(", ")})`;
 
                   return (
                     <button
@@ -503,7 +527,10 @@ export default function BackgroundSelector({
             <Settings2 size={18} />
             Background Settings
             <span className="text-sm font-normal text-muted-foreground ml-auto">
-              {backgroundTypes.find((bg) => bg.type === currentBackground.type)?.name}
+              {
+                backgroundTypes.find((bg) => bg.type === currentBackground.type)
+                  ?.name
+              }
             </span>
           </CardTitle>
         </CardHeader>
@@ -710,7 +737,9 @@ export default function BackgroundSelector({
                 <div>
                   <Label className="text-xs font-medium">Distortion Type</Label>
                   <Select
-                    value={currentBackground.distortion || "turbulentDistortion"}
+                    value={
+                      currentBackground.distortion || "turbulentDistortion"
+                    }
                     onValueChange={(value) =>
                       updateBackground({ distortion: value })
                     }
@@ -827,7 +856,9 @@ export default function BackgroundSelector({
                 </div>
 
                 <div className="sm:col-span-2">
-                  <Label className="text-xs font-medium">Rotation (radians)</Label>
+                  <Label className="text-xs font-medium">
+                    Rotation (radians)
+                  </Label>
                   <div className="flex items-center gap-2 mt-2">
                     <Input
                       type="range"
@@ -927,7 +958,9 @@ export default function BackgroundSelector({
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Hover Fill Color</Label>
+                  <Label className="text-xs font-medium">
+                    Hover Fill Color
+                  </Label>
                   <div className="flex items-center gap-3 mt-2">
                     <input
                       type="color"

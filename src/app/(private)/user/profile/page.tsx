@@ -12,22 +12,36 @@ import DesignTab from "@/components/profile/DesignTab";
 import LinksTab from "@/components/profile/LinksTab";
 import AnalyticsTab from "@/components/profile/AnalyticsTab";
 import PreviewSidebar from "@/components/profile/PreviewSidebar";
+import MobilePreview from "@/components/profile/MobilePreview";
+import BottomNavigation from "@/components/ui/bottom-navigation";
+import MobileSheet from "@/components/ui/mobile-sheet";
+import ResponsiveLayout from "@/components/ui/responsive-layout";
 import PlatformSelector from "@/components/linktree/platform-selector";
 import LinkForm from "@/components/linktree/link-form";
 import { useProfileForm } from "@/hooks/useProfileForm";
 import { getPrimaryBackgroundColor } from "@/types/profile";
-import { 
-  getUserLinktreeProfile, 
-  createLinktreeProfile, 
+import {
+  getUserLinktreeProfile,
+  createLinktreeProfile,
   updateLinktreeProfile,
   addLinktreeLink,
   updateLinktreeLink,
   deleteLinktreeLink,
-  checkUsernameAvailability
+  checkUsernameAvailability,
 } from "@/actions/linktree";
-import { LinktreeProfile, LinktreeLink, CreateLinktreeLink } from "@/interfaces/linktree";
+import {
+  LinktreeProfile,
+  LinktreeLink,
+  CreateLinktreeLink,
+} from "@/interfaces/linktree";
 import toast from "react-hot-toast";
-import { Loader2, User, Palette, Link as LinkIcon, BarChart3 } from "lucide-react";
+import {
+  Loader2,
+  User,
+  Palette,
+  Link as LinkIcon,
+  BarChart3,
+} from "lucide-react";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -41,9 +55,17 @@ export default function ProfilePage() {
   const [editingLink, setEditingLink] = useState<LinktreeLink | null>(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [usernameChecking, setUsernameChecking] = useState(false);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null
+  );
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
 
-  const { profileForm, setProfileForm, backgroundSettings, setBackgroundSettings } = useProfileForm(profile);
+  const {
+    profileForm,
+    setProfileForm,
+    backgroundSettings,
+    setBackgroundSettings,
+  } = useProfileForm(profile);
 
   useEffect(() => {
     loadProfile();
@@ -53,7 +75,7 @@ export default function ProfilePage() {
     try {
       setLoading(true);
       const response = await getUserLinktreeProfile();
-      
+
       if (response.success && response.data) {
         setProfile(response.data);
         setLinks(response.data.linktree_links || []);
@@ -65,8 +87,6 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
-
-  // ... (keep all the existing functions like checkUsername, handleProfileSave, etc.)
 
   const checkUsername = async (username: string) => {
     if (!username || username.length < 3) {
@@ -86,8 +106,8 @@ export default function ProfilePage() {
   };
 
   const handleUsernameChange = (username: string) => {
-    setProfileForm(prev => ({ ...prev, username }));
-    
+    setProfileForm((prev) => ({ ...prev, username }));
+
     const timeoutId = setTimeout(() => {
       if (profile?.username !== username) {
         checkUsername(username);
@@ -102,11 +122,11 @@ export default function ProfilePage() {
   const handleProfileSave = async () => {
     try {
       setSaving(true);
-      
+
       const formDataWithBackground = {
         ...profileForm,
         background_color: getPrimaryBackgroundColor(backgroundSettings.color),
-        background_settings: JSON.stringify(backgroundSettings)
+        background_settings: JSON.stringify(backgroundSettings),
       };
 
       if (!profile) {
@@ -169,7 +189,7 @@ export default function ProfilePage() {
 
   const handleDeleteLink = async (linkId: number) => {
     if (!confirm("Are you sure you want to delete this link?")) return;
-    
+
     try {
       const response = await deleteLinktreeLink(linkId);
       if (response.success) {
@@ -189,6 +209,11 @@ export default function ProfilePage() {
     setShowLinkForm(true);
   };
 
+  const handleTabSelect = (tab: string) => {
+    setActiveTab(tab);
+    setMobileSheetOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -198,102 +223,204 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      {/* OPTIMIZED: Full-width container with better spacing */}
-      <div className="w-full max-w-none mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12 space-y-4 lg:space-y-6">
-        <ProfileHeader profile={profile} router={router} />
-        <ProfileURLCard profile={profile} />
+    <ResponsiveLayout>
+      {/* Mobile Layout */}
+      <div className="lg:hidden">
+        <div className="space-y-3 pb-20 px-2">
+          {/* Conditionally hide ProfileHeader and PublicUrlCard when sheet is open */}
+          {!mobileSheetOpen && (
+            <>
+              <ProfileHeader profile={profile} router={router} />
+              <ProfileURLCard profile={profile} />
+            </>
+          )}
 
-        {/* OPTIMIZED: Better responsive grid layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-          {/* MAIN CONTENT: Takes 8 columns on desktop (66.7%) */}
-          <div className="lg:col-span-8 space-y-4 lg:space-y-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6">
-                <TabsTrigger value="profile" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
-                  <User size={14} className="lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Profile</span>
-                </TabsTrigger>
-                <TabsTrigger value="design" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
-                  <Palette size={14} className="lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Design</span>
-                </TabsTrigger>
-                <TabsTrigger value="links" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
-                  <LinkIcon size={14} className="lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Links</span>
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm">
-                  <BarChart3 size={14} className="lg:w-4 lg:h-4" />
-                  <span className="hidden sm:inline">Analytics</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <ProfileTab 
-                profileForm={profileForm}
-                setProfileForm={setProfileForm}
-                usernameChecking={usernameChecking}
-                usernameAvailable={usernameAvailable}
-                handleProfileSave={handleProfileSave}
-                saving={saving}
-                profile={profile}
-                handleUsernameChange={handleUsernameChange}
-              />
-
-              <DesignTab 
-                backgroundSettings={backgroundSettings}
-                setBackgroundSettings={setBackgroundSettings}
-                profileForm={profileForm}
-                setProfileForm={setProfileForm}
-                links={links}
-                profile={profile} 
-                onSaveBackground={handleProfileSave}
-              />
-
-              <LinksTab 
-                profile={profile}
-                links={links}
-                setShowPlatformSelector={setShowPlatformSelector}
-                handleEditLink={handleEditLink}
-                handleDeleteLink={handleDeleteLink}
-              />
-
-              <AnalyticsTab profile={profile} links={links} />
-            </Tabs>
-          </div>
-
-          {/* SIDEBAR: Takes 4 columns on desktop (33.3%) */}
-          <div className="lg:col-span-4">
-            <PreviewSidebar 
-              profile={profile}
-              profileForm={profileForm}
-              backgroundSettings={backgroundSettings}
-              links={links}
-            />
-          </div>
+          {/* Mobile Preview - Always visible */}
+          <MobilePreview
+            profile={profile}
+            profileForm={profileForm}
+            backgroundSettings={backgroundSettings}
+            links={links}
+          />
         </div>
 
-        {/* Modals */}
-        {showPlatformSelector && (
-          <PlatformSelector
-            onSelect={handleAddLink}
-            onClose={() => setShowPlatformSelector(false)}
-          />
-        )}
+        {/* Bottom Navigation for Mobile */}
+        <BottomNavigation activeTab={activeTab} onTabSelect={handleTabSelect} />
 
-        {showLinkForm && (
-          <LinkForm
-            platform={selectedPlatform}
-            initialData={editingLink || undefined}
-            onSave={handleSaveLink}
-            onCancel={() => {
-              setShowLinkForm(false);
-              setEditingLink(null);
-              setSelectedPlatform("");
-            }}
-            isEditing={!!editingLink}
-          />
-        )}
+        {/* Mobile Sheet for Tab Content - Optimized spacing */}
+        <MobileSheet
+          open={mobileSheetOpen}
+          onOpenChange={setMobileSheetOpen}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        >
+          <div className="space-y-3">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <TabsContent value="profile" className="mt-0 space-y-3">
+                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                  <ProfileTab
+                    profileForm={profileForm}
+                    setProfileForm={setProfileForm}
+                    usernameChecking={usernameChecking}
+                    usernameAvailable={usernameAvailable}
+                    handleProfileSave={handleProfileSave}
+                    saving={saving}
+                    profile={profile}
+                    handleUsernameChange={handleUsernameChange}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="design" className="mt-0 space-y-3">
+                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                  <DesignTab
+                    backgroundSettings={backgroundSettings}
+                    setBackgroundSettings={setBackgroundSettings}
+                    profileForm={profileForm}
+                    setProfileForm={setProfileForm}
+                    links={links}
+                    profile={profile}
+                    onSaveBackground={handleProfileSave}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="links" className="mt-0 space-y-3">
+                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                  <LinksTab
+                    profile={profile}
+                    links={links}
+                    setShowPlatformSelector={setShowPlatformSelector}
+                    handleEditLink={handleEditLink}
+                    handleDeleteLink={handleDeleteLink}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="analytics" className="mt-0 space-y-3">
+                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                  <AnalyticsTab profile={profile} links={links} />
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </MobileSheet>
       </div>
-    </div>
+
+      {/* Desktop Layout (unchanged) */}
+      <div className="hidden lg:block">
+        <div className="w-full max-w-none mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12 space-y-4 lg:space-y-6">
+          <ProfileHeader profile={profile} router={router} />
+          <ProfileURLCard profile={profile} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+            <div className="lg:col-span-8 space-y-4 lg:space-y-6">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-4 mb-4 lg:mb-6">
+                  <TabsTrigger
+                    value="profile"
+                    className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm"
+                  >
+                    <User size={14} className="lg:w-4 lg:h-4" />
+                    <span className="hidden sm:inline">Profile</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="design"
+                    className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm"
+                  >
+                    <Palette size={14} className="lg:w-4 lg:h-4" />
+                    <span className="hidden sm:inline">Design</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="links"
+                    className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm"
+                  >
+                    <LinkIcon size={14} className="lg:w-4 lg:h-4" />
+                    <span className="hidden sm:inline">Links</span>
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="analytics"
+                    className="flex items-center gap-1 lg:gap-2 text-xs sm:text-sm"
+                  >
+                    <BarChart3 size={14} className="lg:w-4 lg:h-4" />
+                    <span className="hidden sm:inline">Analytics</span>
+                  </TabsTrigger>
+                </TabsList>
+
+                <ProfileTab
+                  profileForm={profileForm}
+                  setProfileForm={setProfileForm}
+                  usernameChecking={usernameChecking}
+                  usernameAvailable={usernameAvailable}
+                  handleProfileSave={handleProfileSave}
+                  saving={saving}
+                  profile={profile}
+                  handleUsernameChange={handleUsernameChange}
+                />
+
+                <DesignTab
+                  backgroundSettings={backgroundSettings}
+                  setBackgroundSettings={setBackgroundSettings}
+                  profileForm={profileForm}
+                  setProfileForm={setProfileForm}
+                  links={links}
+                  profile={profile}
+                  onSaveBackground={handleProfileSave}
+                />
+
+                <LinksTab
+                  profile={profile}
+                  links={links}
+                  setShowPlatformSelector={setShowPlatformSelector}
+                  handleEditLink={handleEditLink}
+                  handleDeleteLink={handleDeleteLink}
+                />
+
+                <AnalyticsTab profile={profile} links={links} />
+              </Tabs>
+            </div>
+
+            <div className="lg:col-span-4">
+              <PreviewSidebar
+                profile={profile}
+                profileForm={profileForm}
+                backgroundSettings={backgroundSettings}
+                links={links}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {showPlatformSelector && (
+        <PlatformSelector
+          onSelect={handleAddLink}
+          onClose={() => setShowPlatformSelector(false)}
+        />
+      )}
+
+      {showLinkForm && (
+        <LinkForm
+          platform={selectedPlatform}
+          initialData={editingLink || undefined}
+          onSave={handleSaveLink}
+          onCancel={() => {
+            setShowLinkForm(false);
+            setEditingLink(null);
+            setSelectedPlatform("");
+          }}
+          isEditing={!!editingLink}
+        />
+      )}
+    </ResponsiveLayout>
   );
 }
