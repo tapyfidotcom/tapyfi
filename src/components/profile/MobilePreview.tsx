@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Smartphone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Eye, Smartphone, RefreshCw } from "lucide-react";
 import BackgroundWrapper from "@/components/ui/background-wrapper";
 import EnhancedProfilePicture from "@/components/ui/enhanced-profile-picture";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
@@ -20,6 +21,7 @@ interface MobilePreviewProps {
   profileForm: ProfileFormData;
   backgroundSettings: BackgroundSettings;
   links: LinktreeLink[];
+  onRefresh?: () => void;
 }
 
 export default function MobilePreview({
@@ -27,7 +29,23 @@ export default function MobilePreview({
   profileForm,
   backgroundSettings,
   links,
+  onRefresh,
 }: MobilePreviewProps) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      if (onRefresh) {
+        await onRefresh();
+      }
+      // Add a small delay for visual feedback
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const renderIcon = (icon: string, size: number = 24) => {
     if (typeof icon === "string" && icon.startsWith("/assets")) {
       return (
@@ -93,9 +111,23 @@ export default function MobilePreview({
               <Smartphone size={16} className="text-blue-500" />
               Mobile Preview
             </CardTitle>
-            <Badge variant="secondary" className="text-xs">
-              Live
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="h-8 w-8 p-0"
+              >
+                <RefreshCw 
+                  size={14} 
+                  className={`${isRefreshing ? 'animate-spin' : ''} text-gray-500`} 
+                />
+              </Button>
+              <Badge variant="secondary" className="text-xs">
+                Live
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-3 text-center">
@@ -123,6 +155,19 @@ export default function MobilePreview({
             Mobile Preview
           </CardTitle>
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-gray-700"
+              title="Refresh preview"
+            >
+              <RefreshCw 
+                size={14} 
+                className={`${isRefreshing ? 'animate-spin' : ''} text-blue-500`} 
+              />
+            </Button>
             <Badge variant="outline" className="text-xs">
               <Eye size={10} className="mr-1" />
               {profile?.view_count || 0}
@@ -138,7 +183,7 @@ export default function MobilePreview({
           <div className="absolute inset-0">
             <BackgroundWrapper 
               settings={backgroundSettings}
-              key={`mobile-bg-${backgroundSettings.type}-${JSON.stringify(backgroundSettings.color)}`}
+              key={`mobile-bg-${backgroundSettings.type}-${JSON.stringify(backgroundSettings.color)}-${isRefreshing ? Date.now() : ''}`}
             />
           </div>
 
@@ -195,7 +240,7 @@ export default function MobilePreview({
 
                     return (
                       <button
-                        key={link.id}
+                        key={`${link.id}-${isRefreshing ? Date.now() : ''}`}
                         className="w-full group relative overflow-hidden rounded-full transition-all duration-200 shadow-lg backdrop-blur-md border border-white/20 hover:scale-[1.02] p-3"
                         style={{
                           backgroundColor: `${getThemeColor()}E6`,
@@ -260,6 +305,15 @@ export default function MobilePreview({
               </p>
             </div>
           </div>
+
+          {/* Refresh overlay when refreshing */}
+          {isRefreshing && (
+            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px] flex items-center justify-center z-20">
+              <div className="bg-white/90 dark:bg-gray-800/90 rounded-full p-3 shadow-lg">
+                <RefreshCw size={24} className="animate-spin text-blue-500" />
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

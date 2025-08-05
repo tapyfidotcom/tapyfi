@@ -152,7 +152,7 @@ export default function BackgroundSelector({
       const newSettings: BackgroundSettings = {
         type,
         color: defaultColor,
-        speed: 1,
+        speed: 1.8,
         intensity: 1,
         mouseInteraction: false,
       };
@@ -163,8 +163,8 @@ export default function BackgroundSelector({
         newSettings.gradientType = "linear";
       } else if (type === "squares") {
         newSettings.direction = "right";
-        newSettings.borderColor = "#999";
-        newSettings.squareSize = 40;
+        newSettings.borderColor = "#ffffff";
+        newSettings.squareSize = 50;
         newSettings.hoverFillColor = "#222";
       } else if (type === "hyperspeed") {
         newSettings.preset = "one";
@@ -178,7 +178,7 @@ export default function BackgroundSelector({
         newSettings.noiseIntensity = 1.5;
         newSettings.rotation = 0;
       } else if (type === "iridescence") {
-        newSettings.iridescenceColor = [0.3, 0.2, 0.5] as [
+        newSettings.iridescenceColor = [1.0, 0.2, 0.5] as [
           number,
           number,
           number
