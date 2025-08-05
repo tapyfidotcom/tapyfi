@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LinktreeProfile, LinktreeLink } from "@/interfaces/linktree";
@@ -17,7 +16,6 @@ import {
   Loader2,
   Users,
   Globe,
-  Calendar,
   Activity,
   Trophy,
   Medal,
@@ -145,8 +143,8 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
     }
   };
 
-  // Function to render icon (image or emoji) - Increased size
-  const renderIcon = (icon: string, size: number = 32) => {
+  // Function to render icon (image or emoji)
+  const renderIcon = (icon: string, size: number = 20) => {
     if (typeof icon === 'string' && icon.startsWith('/assets/')) {
       return (
         <Image
@@ -158,15 +156,15 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
         />
       );
     }
-    return <span className="text-2xl">{icon}</span>;
+    return <span className={`text-${size === 24 ? 'xl' : 'lg'}`}>{icon}</span>;
   };
 
   // Function to get ranking icon based on position
   const getRankingIcon = (index: number) => {
     switch (index) {
-      case 0: return <Trophy className="w-5 h-5 text-yellow-500" />;
-      case 1: return <Medal className="w-5 h-5 text-gray-400" />;
-      case 2: return <Award className="w-5 h-5 text-amber-600" />;
+      case 0: return <Trophy className="w-3 h-3 lg:w-4 lg:h-4 text-yellow-900" />;
+      case 1: return <Medal className="w-3 h-3 lg:w-4 lg:h-4 text-gray-900" />;
+      case 2: return <Award className="w-3 h-3 lg:w-4 lg:h-4 text-amber-900" />;
       default: return null;
     }
   };
@@ -183,16 +181,14 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
 
   if (!profile) {
     return (
-      <TabsContent value="analytics" className="space-y-6">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-              <BarChart3 className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No Profile Found</h3>
-            <p className="text-muted-foreground">Create a profile to view analytics</p>
-          </CardContent>
-        </Card>
+      <TabsContent value="analytics" className="space-y-4">
+        <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-6 lg:p-12 text-center shadow-lg">
+          <div className="w-12 h-12 lg:w-16 lg:h-16 mx-auto mb-4 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 dark:border-gray-300/20">
+            <BarChart3 className="h-6 w-6 lg:h-8 lg:w-8 text-gray-600 dark:text-gray-400" />
+          </div>
+          <h3 className="text-base lg:text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">No Profile Found</h3>
+          <p className="text-sm text-gray-700 dark:text-gray-300">Create a profile to view analytics</p>
+        </div>
       </TabsContent>
     );
   }
@@ -202,122 +198,110 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
   const uniqueVisitors = analytics?.uniqueVisitors || Math.floor(totalViews * 0.7);
 
   return (
-    <TabsContent value="analytics" className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Activity size={24} className="text-primary" />
-            Analytics
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {getTimeRangeLabel()}
-          </p>
-        </div>
-        
-        {/* Time Range Selector */}
-        <div className="flex bg-muted rounded-lg p-1">
-          {(['7d', '30d', '90d'] as const).map((range) => (
-            <Button
-              key={range}
-              variant={timeRange === range ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setTimeRange(range)}
-              className="h-8 px-3 text-xs font-medium rounded-md"
-            >
-              {range === '7d' ? '7D' : range === '30d' ? '30D' : '90D'}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {loading ? (
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-12 text-center">
-            <Loader2 className="mx-auto h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Loading analytics...</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <Eye size={20} className="text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Views</p>
-                    <p className="text-xl font-bold text-blue-900 dark:text-blue-100">{totalViews}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                    <MousePointer size={20} className="text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-green-700 dark:text-green-300">Clicks</p>
-                    <p className="text-xl font-bold text-green-900 dark:text-green-100">{totalClicks}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
-                    <Users size={20} className="text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-purple-700 dark:text-purple-300">Visitors</p>
-                    <p className="text-xl font-bold text-purple-900 dark:text-purple-100">{uniqueVisitors}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-sm bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
-                    <ExternalLink size={20} className="text-white" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-orange-700 dark:text-orange-300">Links</p>
-                    <p className="text-xl font-bold text-orange-900 dark:text-orange-100">{links.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+    <TabsContent value="analytics" className="space-y-4">
+      <div className="space-y-4">
+        {/* Header with Perfect Glass Effect */}
+        <div className="flex items-center justify-between pb-4 border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center gap-2">
+            <Activity size={18} className="text-primary" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Analytics & Stats</h2>
+            <span className="text-xs font-normal text-gray-700 dark:text-gray-300 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-2 py-1 rounded-full border border-white/20 dark:border-gray-300/20">
+              {getTimeRangeLabel()}
+            </span>
           </div>
+          
+          {/* Time Range Selector - Mobile Optimized */}
+          <div className="flex bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm rounded-lg p-1 border border-white/20 dark:border-gray-300/20">
+            {(['7d', '30d', '90d'] as const).map((range) => (
+              <Button
+                key={range}
+                variant={timeRange === range ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setTimeRange(range)}
+                className="h-6 lg:h-8 px-2 lg:px-3 text-xs font-medium rounded-md"
+              >
+                {range === '7d' ? '7D' : range === '30d' ? '30D' : '90D'}
+              </Button>
+            ))}
+          </div>
+        </div>
 
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Top Links - Enhanced with larger icons and new ranking system */}
-            <Card className="lg:col-span-2 border-0 shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <TrendingUp size={18} />
-                  Top Performing Links
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+        {loading ? (
+          <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-6 lg:p-12 text-center shadow-lg">
+            <Loader2 className="mx-auto h-6 w-6 lg:h-8 lg:w-8 animate-spin text-primary mb-4" />
+            <p className="text-sm text-gray-700 dark:text-gray-300">Loading analytics...</p>
+          </div>
+        ) : (
+          <>
+            {/* Stats Grid - Perfect Glass Effect */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-blue-200/40 dark:border-blue-300/40 rounded-lg p-3 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 bg-blue-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <Eye size={14} className="lg:w-5 lg:h-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Views</p>
+                    <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{totalViews}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-green-200/40 dark:border-green-300/40 rounded-lg p-3 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 bg-green-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <MousePointer size={14} className="lg:w-5 lg:h-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Clicks</p>
+                    <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{totalClicks}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-purple-200/40 dark:border-purple-300/40 rounded-lg p-3 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 bg-purple-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <Users size={14} className="lg:w-5 lg:h-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Visitors</p>
+                    <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{uniqueVisitors}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-orange-200/40 dark:border-orange-300/40 rounded-lg p-3 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 lg:w-10 lg:h-10 bg-orange-500 rounded-lg flex items-center justify-center shadow-sm">
+                    <ExternalLink size={14} className="lg:w-5 lg:h-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Links</p>
+                    <p className="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">{links.length}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content Grid - Mobile Optimized */}
+            <div className="space-y-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+              {/* Top Links - Perfect Glass Effect */}
+              <div className="lg:col-span-2 bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-4 shadow-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp size={16} className="text-primary" />
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-100">Top Performing Links</h3>
+                </div>
+
                 {links.length === 0 ? (
-                  <div className="text-center py-8">
-                    <div className="w-12 h-12 mx-auto mb-3 bg-muted rounded-full flex items-center justify-center">
-                      <ExternalLink className="h-6 w-6 text-muted-foreground" />
+                  <div className="text-center py-6 lg:py-8">
+                    <div className="w-10 h-10 lg:w-12 lg:h-12 mx-auto mb-3 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 dark:border-gray-300/20">
+                      <ExternalLink className="h-5 w-5 lg:h-6 lg:w-6 text-gray-600 dark:text-gray-400" />
                     </div>
-                    <p className="text-sm text-muted-foreground">No links to analyze</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">No links to analyze</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {links
                       .sort((a, b) => b.click_count - a.click_count)
                       .slice(0, 5)
@@ -329,47 +313,47 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
                         
                         return (
                           <div key={link.id} className="relative group">
-                            {/* Ranking Badge - Positioned absolutely */}
-                            <div className="absolute -left-2 -top-2 z-10">
+                            {/* Ranking Badge - Mobile Optimized */}
+                            <div className="absolute -left-2 -top-1 z-10">
                               <div className={`
-                                w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-lg
+                                w-6 h-6 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-xs lg:text-sm font-bold shadow-lg
                                 ${getRankingColors(index)}
                               `}>
                                 {index < 3 ? getRankingIcon(index) : index + 1}
                               </div>
                             </div>
 
-                            {/* Main Link Card */}
-                            <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors ml-4">
-                              {/* Enhanced Platform Icon */}
-                              <div className="w-14 h-14 bg-background rounded-xl flex items-center justify-center shadow-sm border border-border group-hover:shadow-md transition-shadow">
-                                {renderIcon(config?.icon || '🔗', 32)}
+                            {/* Main Link Card - Perfect Glass Effect */}
+                            <div className="flex items-center gap-3 p-3 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm rounded-lg hover:bg-white/40 dark:hover:bg-gray-100/40 transition-colors ml-3 border border-white/20 dark:border-gray-300/20">
+                              {/* Platform Icon - Mobile Optimized */}
+                              <div className="w-10 h-10 lg:w-12 lg:h-12 bg-white/40 dark:bg-gray-100/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-sm border border-white/20 dark:border-gray-300/20 group-hover:shadow-md transition-shadow">
+                                {renderIcon(config?.icon || '🔗', 20)}
                               </div>
                               
                               {/* Link Info */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="min-w-0 flex-1">
-                                    <h4 className="text-sm font-semibold truncate text-foreground">{link.title}</h4>
-                                    <p className="text-xs text-muted-foreground truncate mt-0.5">
-                                      {config?.name || 'Custom'} • {link.url.length > 30 ? link.url.substring(0, 30) + '...' : link.url}
+                                    <h4 className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">{link.title}</h4>
+                                    <p className="text-xs text-black dark:text-black truncate mt-0.5">
+                                      {config?.name || 'Custom'} • {link.url.length > 25 ? link.url.substring(0, 25) + '...' : link.url}
                                     </p>
                                   </div>
                                   
                                   {/* Stats */}
                                   <div className="text-right flex-shrink-0">
-                                    <p className="text-lg font-bold text-foreground">{link.click_count}</p>
-                                    <p className="text-xs text-muted-foreground">
+                                    <p className="text-sm lg:text-base font-black text-gray-900 dark:text-gray-100">{link.click_count}</p>
+                                    <p className="text-xs text-gray-600 dark:text-gray-800">
                                       {clickRate}% CTR
                                     </p>
                                   </div>
                                 </div>
                                 
-                                {/* Progress Bar */}
-                                <div className="mt-3">
-                                  <div className="w-full bg-muted rounded-full h-1.5">
+                                {/* Progress Bar - Mobile Optimized */}
+                                <div className="mt-2">
+                                  <div className="w-full bg-white/40 dark:bg-gray-100/40 backdrop-blur-sm rounded-full h-1 lg:h-1.5 border border-white/20 dark:border-gray-300/20">
                                     <div 
-                                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                                      className={`h-1 lg:h-1.5 rounded-full transition-all duration-500 ${
                                         index === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' :
                                         index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-600' :
                                         index === 2 ? 'bg-gradient-to-r from-amber-500 to-amber-700' :
@@ -388,34 +372,34 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
                       })}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Profile Info */}
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Globe size={18} />
-                  Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              {/* Profile Info - Perfect Glass Effect */}
+              <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-4 shadow-lg">
+                <div className="flex items-center gap-2 mb-4">
+                  <Globe size={16} className="text-primary" />
+                  <h3 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-100">Profile</h3>
+                </div>
+
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Status</span>
-                    <Badge variant={profile.is_active ? "default" : "secondary"} className="text-xs">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Status</span>
+                    <Badge 
+                      variant={profile.is_active ? "default" : "secondary"} 
+                      className="text-xs bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
+                    >
                       {profile.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Username</span>
-                    <span className="text-sm font-medium">@{profile.username}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Username</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">@{profile.username}</span>
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm">Created</span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Created</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {new Date(profile.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -424,30 +408,30 @@ export default function AnalyticsTab({ profile, links }: AnalyticsTabProps) {
                     </span>
                   </div>
 
-                  <div className="pt-2 border-t space-y-3">
+                  <div className="pt-3 border-t border-gray-200/50 dark:border-gray-700/50 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Total Views</span>
-                      <span className="text-sm font-semibold">{profile.view_count.toLocaleString()}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Total Views</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{profile.view_count.toLocaleString()}</span>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Total Clicks</span>
-                      <span className="text-sm font-semibold">{totalClicks.toLocaleString()}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Total Clicks</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{totalClicks.toLocaleString()}</span>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Click Rate</span>
-                      <span className="text-sm font-semibold">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Click Rate</span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(1) : '0'}%
                       </span>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </>
-      )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </TabsContent>
   );
 }

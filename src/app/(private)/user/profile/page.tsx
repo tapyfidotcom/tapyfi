@@ -17,6 +17,8 @@ import BottomNavigation from "@/components/ui/bottom-navigation";
 import MobileSheet from "@/components/ui/mobile-sheet";
 import ResponsiveLayout from "@/components/ui/responsive-layout";
 import PlatformSelector from "@/components/linktree/platform-selector";
+import MobilePlatformSelector from "@/components/linktree/MobilePlatformSelector";
+import MobileLinkForm from "@/components/linktree/MobileLinkForm";
 import LinkForm from "@/components/linktree/link-form";
 import { useProfileForm } from "@/hooks/useProfileForm";
 import { getPrimaryBackgroundColor } from "@/types/profile";
@@ -49,8 +51,11 @@ export default function ProfilePage() {
   const [links, setLinks] = useState<LinktreeLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Existing modal states for desktop
   const [showPlatformSelector, setShowPlatformSelector] = useState(false);
   const [showLinkForm, setShowLinkForm] = useState(false);
+
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [editingLink, setEditingLink] = useState<LinktreeLink | null>(null);
   const [activeTab, setActiveTab] = useState("profile");
@@ -58,7 +63,12 @@ export default function ProfilePage() {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
   );
+
+  // Mobile sheet states
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [mobileSheetContent, setMobileSheetContent] = useState<
+    "tabs" | "platform-selector" | "link-form"
+  >("tabs");
 
   const {
     profileForm,
@@ -87,6 +97,8 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+
+  // ... existing functions (checkUsername, handleProfileSave, etc.)
 
   const checkUsername = async (username: string) => {
     if (!username || username.length < 3) {
@@ -153,10 +165,31 @@ export default function ProfilePage() {
     }
   };
 
+  // Modified to work with mobile sheet
+  const handleShowPlatformSelector = () => {
+    // Check if mobile view using window width or CSS media query
+    const isMobile = window.innerWidth < 1024; // lg breakpoint
+
+    if (isMobile) {
+      setMobileSheetContent("platform-selector");
+      setMobileSheetOpen(true);
+    } else {
+      setShowPlatformSelector(true);
+    }
+  };
+
   const handleAddLink = (platform: string) => {
     setSelectedPlatform(platform);
-    setShowPlatformSelector(false);
-    setShowLinkForm(true);
+
+    const isMobile = window.innerWidth < 1024;
+
+    if (isMobile) {
+      setMobileSheetContent("link-form");
+      setEditingLink(null);
+    } else {
+      setShowPlatformSelector(false);
+      setShowLinkForm(true);
+    }
   };
 
   const handleSaveLink = async (linkData: CreateLinktreeLink) => {
@@ -181,7 +214,14 @@ export default function ProfilePage() {
     } catch (error) {
       toast.error("Failed to save link");
     } finally {
-      setShowLinkForm(false);
+      // Close mobile sheet if on mobile
+      const isMobile = window.innerWidth < 1024;
+      if (isMobile) {
+        setMobileSheetContent("tabs");
+        setMobileSheetOpen(false);
+      } else {
+        setShowLinkForm(false);
+      }
       setEditingLink(null);
       setSelectedPlatform("");
     }
@@ -206,12 +246,28 @@ export default function ProfilePage() {
   const handleEditLink = (link: LinktreeLink) => {
     setEditingLink(link);
     setSelectedPlatform(link.platform);
-    setShowLinkForm(true);
+
+    const isMobile = window.innerWidth < 1024;
+
+    if (isMobile) {
+      setMobileSheetContent("link-form");
+      setMobileSheetOpen(true);
+    } else {
+      setShowLinkForm(true);
+    }
   };
 
   const handleTabSelect = (tab: string) => {
     setActiveTab(tab);
+    setMobileSheetContent("tabs");
     setMobileSheetOpen(true);
+  };
+
+  const handleCloseMobileSheet = () => {
+    setMobileSheetOpen(false);
+    setMobileSheetContent("tabs");
+    setEditingLink(null);
+    setSelectedPlatform("");
   };
 
   if (loading) {
@@ -247,21 +303,21 @@ export default function ProfilePage() {
         {/* Bottom Navigation for Mobile */}
         <BottomNavigation activeTab={activeTab} onTabSelect={handleTabSelect} />
 
-        {/* Mobile Sheet for Tab Content - Optimized spacing */}
+        {/* Mobile Sheet with Dynamic Content */}
         <MobileSheet
           open={mobileSheetOpen}
           onOpenChange={setMobileSheetOpen}
           activeTab={activeTab}
           onTabChange={setActiveTab}
         >
-          <div className="space-y-3">
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className="w-full"
-            >
-              <TabsContent value="profile" className="mt-0 space-y-3">
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+          {mobileSheetContent === "tabs" && (
+            <div className="space-y-3">
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full"
+              >
+                <TabsContent value="profile" className="mt-0 space-y-3">
                   <ProfileTab
                     profileForm={profileForm}
                     setProfileForm={setProfileForm}
@@ -272,11 +328,9 @@ export default function ProfilePage() {
                     profile={profile}
                     handleUsernameChange={handleUsernameChange}
                   />
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="design" className="mt-0 space-y-3">
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                <TabsContent value="design" className="mt-0 space-y-3">
                   <DesignTab
                     backgroundSettings={backgroundSettings}
                     setBackgroundSettings={setBackgroundSettings}
@@ -286,32 +340,51 @@ export default function ProfilePage() {
                     profile={profile}
                     onSaveBackground={handleProfileSave}
                   />
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="links" className="mt-0 space-y-3">
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                <TabsContent value="links" className="mt-0 space-y-3">
                   <LinksTab
                     profile={profile}
                     links={links}
-                    setShowPlatformSelector={setShowPlatformSelector}
+                    setShowPlatformSelector={handleShowPlatformSelector}
                     handleEditLink={handleEditLink}
                     handleDeleteLink={handleDeleteLink}
                   />
-                </div>
-              </TabsContent>
+                </TabsContent>
 
-              <TabsContent value="analytics" className="mt-0 space-y-3">
-                <div className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3">
+                <TabsContent value="analytics" className="mt-0 space-y-3">
                   <AnalyticsTab profile={profile} links={links} />
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {/* Platform Selector inside Mobile Sheet */}
+          {mobileSheetContent === "platform-selector" && (
+            <div className="h-full">
+              <MobilePlatformSelector
+                onSelect={handleAddLink}
+                onClose={handleCloseMobileSheet}
+              />
+            </div>
+          )}
+
+          {/* Link Form inside Mobile Sheet */}
+          {mobileSheetContent === "link-form" && (
+            <div className="h-full">
+              <MobileLinkForm
+                platform={selectedPlatform}
+                initialData={editingLink || undefined}
+                onSave={handleSaveLink}
+                onCancel={handleCloseMobileSheet}
+                isEditing={!!editingLink}
+              />
+            </div>
+          )}
         </MobileSheet>
       </div>
 
-      {/* Desktop Layout (unchanged) */}
+      {/* Desktop Layout (unchanged) - Keep existing modals */}
       <div className="hidden lg:block">
         <div className="w-full max-w-none mx-auto px-2 sm:px-4 lg:px-6 xl:px-8 2xl:px-12 space-y-4 lg:space-y-6">
           <ProfileHeader profile={profile} router={router} />
@@ -379,7 +452,7 @@ export default function ProfilePage() {
                 <LinksTab
                   profile={profile}
                   links={links}
-                  setShowPlatformSelector={setShowPlatformSelector}
+                  setShowPlatformSelector={handleShowPlatformSelector}
                   handleEditLink={handleEditLink}
                   handleDeleteLink={handleDeleteLink}
                 />
@@ -400,7 +473,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Modals */}
+      {/* Desktop Modals (only show on desktop) */}
       {showPlatformSelector && (
         <PlatformSelector
           onSelect={handleAddLink}

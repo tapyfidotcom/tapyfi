@@ -2,11 +2,9 @@
 
 import React, { useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import BackgroundSelector from "@/components/ui/background-selector";
 import { LinktreeLink, LinktreeProfile } from "@/interfaces/linktree";
 import { ProfileFormData, BackgroundSettings, getPrimaryBackgroundColor } from "@/types/profile";
@@ -14,8 +12,7 @@ import {
   Palette, 
   Save, 
   Check, 
-  Loader2, 
-  Sparkles
+  Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -63,181 +60,157 @@ export default function DesignTab({
     }
   };
 
-  const colorPresets = [
-    { name: 'Midnight', bg: '#0f172a', text: '#f8fafc', theme: '#3b82f6' },
-    { name: 'Ocean', bg: '#0c4a6e', text: '#f0f9ff', theme: '#0ea5e9' },
-    { name: 'Forest', bg: '#14532d', text: '#f0fdf4', theme: '#22c55e' },
-    { name: 'Sunset', bg: '#ea580c', text: '#fff7ed', theme: '#f97316' },
-    { name: 'Purple', bg: '#581c87', text: '#faf5ff', theme: '#a855f7' },
-    { name: 'Rose', bg: '#881337', text: '#fff1f2', theme: '#f43f5e' },
-    { name: 'Clean', bg: '#ffffff', text: '#1f2937', theme: '#6366f1' },
-    { name: 'Dark', bg: '#000000', text: '#f8fafc', theme: '#10b981' },
-  ];
-
   return (
-    <TabsContent value="design" className="space-y-6">
-      <style jsx>{`
-        .circular-color-picker {
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          appearance: none;
-          width: 64px;
-          height: 64px;
-          background-color: transparent;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          outline: none;
-        }
-        
-        .circular-color-picker::-webkit-color-swatch {
-          border-radius: 50%;
-          border: 2px solid #e5e7eb;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .circular-color-picker::-moz-color-swatch {
-          border-radius: 50%;
-          border: 2px solid #e5e7eb;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .circular-color-picker:hover::-webkit-color-swatch {
-          border-color: #d1d5db;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .circular-color-picker:hover::-moz-color-swatch {
-          border-color: #d1d5db;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-      `}</style>
-
-      {/* Design Settings Card */}
-      <Card className="overflow-hidden bg-gradient-to-br from-card to-card/50 dark:from-gray-800 dark:to-gray-900 shadow-xl">
-        <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b dark:border-gray-700">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 dark:text-white">
-              <Palette size={20} />
-              Design & Appearance
-            </CardTitle>
-            <Button 
-              onClick={handleSaveBackground}
-              disabled={savingBackground}
-              className="flex items-center gap-2 shadow-sm"
-              size="sm"
-            >
-              {savingBackground ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : backgroundSaved ? (
-                <Check size={14} />
-              ) : (
-                <Save size={14} />
-              )}
-              {savingBackground ? 'Saving...' : backgroundSaved ? 'Saved!' : 'Save Design'}
-            </Button>
+    <TabsContent value="design" className="space-y-4">
+      <div className="space-y-4">
+        {/* Header - Perfect Glass Effect */}
+        <div className="flex items-center justify-between pb-4 border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="flex items-center gap-2">
+            <Palette size={18} className="text-primary" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Design & Appearance</h2>
           </div>
-        </CardHeader>
-        <CardContent className="p-8 space-y-8">
-          {/* Background Settings */}
-          <div className="space-y-6">
+          <Button 
+            onClick={handleSaveBackground}
+            disabled={savingBackground}
+            size="sm"
+            className="h-8 px-3 text-xs rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200 text-white font-medium"
+          >
+            {savingBackground ? (
+              <>
+                <Loader2 size={12} className="mr-1 animate-spin" />
+                Saving...
+              </>
+            ) : backgroundSaved ? (
+              <>
+                <Check size={12} className="mr-1" />
+                Saved!
+              </>
+            ) : (
+              <>
+                <Save size={12} className="mr-1" />
+                Save
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Main Content Card - Perfect Glass Effect */}
+        <div className="bg-white/80 dark:bg-gray-800 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-4 lg:p-6 shadow-lg">
+          {/* Background Settings Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Palette size={16} className="text-primary" />
+              <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Background Settings
+              </Label>
+            </div>
+            
             <BackgroundSelector
               currentBackground={backgroundSettings}
               onBackgroundChange={setBackgroundSettings}
+              profileId={profile?.id?.toString()}
             />
-            
-            <Separator className="dark:border-gray-700" />
+          </div>
 
-            {/* Color Scheme */}
-            <div className="space-y-6">
-              <Label className="text-sm font-medium flex items-center gap-2 dark:text-white">
-                <Sparkles size={16} />
-                Color Scheme
-              </Label>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="theme_color" className="text-xs font-medium dark:text-gray-300">Button Color</Label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="relative">
-                      <input
-                        id="theme_color"
-                        type="color"
-                        value={profileForm.theme_color}
-                        onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ ...prev, theme_color: e.target.value }))}
-                        className="circular-color-picker transition-all duration-200"
-                      />
-                      <div className="absolute inset-0 rounded-full ring-2 ring-primary/20 pointer-events-none opacity-0 hover:opacity-100 transition-opacity" />
-                    </div>
-                    <Input
-                      type="text"
-                      value={profileForm.theme_color}
-                      onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ ...prev, theme_color: e.target.value }))}
-                      className="text-xs font-mono flex-1 dark:bg-gray-800 dark:border-gray-600"
+          {/* Color Scheme Section - Perfect Glass Effect */}
+          <div className="space-y-4 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
+            <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+              <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+              Color Scheme
+            </Label>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Button Color - Perfect Glass Effect */}
+              <div className="space-y-2">
+                <Label htmlFor="theme_color" className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                  Button Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <input
+                      id="theme_color"
+                      type="color"
+                      value={Array.isArray(profileForm.theme_color) ? profileForm.theme_color[0] : profileForm.theme_color}
+                      onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ 
+                        ...prev, 
+                        theme_color: e.target.value 
+                      }))}
+                      className="w-10 h-8 lg:w-12 lg:h-10 rounded-lg border border-white/30 dark:border-gray-300/30 cursor-pointer bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm hover:border-indigo-400/60 transition-colors shadow-sm"
                     />
                   </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="text_color" className="text-xs font-medium dark:text-gray-300">Text Color</Label>
-                  <div className="flex items-center gap-3 mt-2">
-                    <div className="relative">
-                      <input
-                        id="text_color"
-                        type="color"
-                        value={profileForm.text_color}
-                        onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ ...prev, text_color: e.target.value }))}
-                        className="circular-color-picker transition-all duration-200"
-                      />
-                      <div className="absolute inset-0 rounded-full ring-2 ring-primary/20 pointer-events-none opacity-0 hover:opacity-100 transition-opacity" />
-                    </div>
-                    <Input
-                      type="text"
-                      value={profileForm.text_color}
-                      onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ ...prev, text_color: e.target.value }))}
-                      className="text-xs font-mono flex-1 dark:bg-gray-800 dark:border-gray-600"
-                    />
-                  </div>
+                  <Input
+                    type="text"
+                    value={Array.isArray(profileForm.theme_color) ? profileForm.theme_color[0] : profileForm.theme_color}
+                    onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ 
+                      ...prev, 
+                      theme_color: e.target.value 
+                    }))}
+                    className="text-xs lg:text-sm font-mono flex-1 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 hover:border-indigo-400/60 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-colors"
+                    placeholder="#6366f1"
+                  />
                 </div>
               </div>
-
-              {/* Color Presets */}
-              <div>
-                <Label className="text-xs mb-4 block font-medium dark:text-gray-300">Quick Presets</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {colorPresets.map((preset) => (
-                    <Button
-                      key={preset.name}
-                      variant="outline"
-                      size="sm"
-                      className="h-auto p-4 flex flex-col gap-3 hover:scale-105 transition-all duration-200 dark:border-gray-600 dark:hover:bg-gray-800"
-                      onClick={() => {
-                        setBackgroundSettings({
-                          ...backgroundSettings,
-                          color: preset.bg,
-                          type: 'solid'
-                        });
-                        setProfileForm((prev: ProfileFormData) => ({ 
-                          ...prev, 
-                          text_color: preset.text, 
-                          theme_color: preset.theme,
-                          background_color: preset.bg
-                        }));
-                      }}
-                    >
-                      <div 
-                        className="w-10 h-10 rounded-full border-2 border-white shadow-sm"
-                        style={{ backgroundColor: preset.bg }}
-                      />
-                      <span className="text-xs font-medium dark:text-gray-300">{preset.name}</span>
-                    </Button>
-                  ))}
+              
+              {/* Text Color - Perfect Glass Effect */}
+              <div className="space-y-2">
+                <Label htmlFor="text_color" className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                  Text Color
+                </Label>
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <input
+                      id="text_color"
+                      type="color"
+                      value={Array.isArray(profileForm.text_color) ? profileForm.text_color[0] : profileForm.text_color}
+                      onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ 
+                        ...prev, 
+                        text_color: e.target.value 
+                      }))}
+                      className="w-10 h-8 lg:w-12 lg:h-10 rounded-lg border border-white/30 dark:border-gray-300/30 cursor-pointer bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm hover:border-indigo-400/60 transition-colors shadow-sm"
+                    />
+                  </div>
+                  <Input
+                    type="text"
+                    value={Array.isArray(profileForm.text_color) ? profileForm.text_color[0] : profileForm.text_color}
+                    onChange={(e) => setProfileForm((prev: ProfileFormData) => ({ 
+                      ...prev, 
+                      text_color: e.target.value 
+                    }))}
+                    className="text-xs lg:text-sm font-mono flex-1 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 hover:border-indigo-400/60 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-colors"
+                    placeholder="#ffffff"
+                  />
                 </div>
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Save Button for Mobile - Perfect Glass Effect */}
+          <div className="pt-4 border-t border-gray-200/50 dark:border-gray-700/50 lg:hidden">
+            <Button 
+              onClick={handleSaveBackground}
+              disabled={savingBackground}
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              {savingBackground ? (
+                <>
+                  <Loader2 size={14} className="mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : backgroundSaved ? (
+                <>
+                  <Check size={14} className="mr-2" />
+                  Saved!
+                </>
+              ) : (
+                <>
+                  <Save size={14} className="mr-2" />
+                  Save Design
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
     </TabsContent>
   );
 }

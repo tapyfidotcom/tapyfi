@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Palette,
@@ -105,7 +104,7 @@ export default function BackgroundSelector({
   );
 
   // Filter presets based on category and search
-  const filteredPresets = React.useMemo(() => {
+  const filteredPresets = useMemo(() => {
     let presets = gradientPresets;
 
     if (selectedCategory !== "All") {
@@ -243,16 +242,15 @@ export default function BackgroundSelector({
   const renderColorControls = () => {
     if (currentBackground.type === "iridescence") {
       const colors = currentBackground.iridescenceColor || [0.3, 0.2, 0.5];
-
       return (
-        <div className="space-y-4">
-          <Label className="text-sm font-medium">
+        <div className="space-y-3">
+          <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">
             Iridescence Colors (RGB 0-1)
           </Label>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {["Red", "Green", "Blue"].map((channel, idx) => (
-              <div key={channel} className="flex items-center gap-3">
-                <span className="text-sm w-12">{channel}:</span>
+              <div key={channel} className="flex items-center gap-2">
+                <span className="text-xs w-10 text-gray-700 dark:text-gray-300">{channel}:</span>
                 <Input
                   type="range"
                   min="0"
@@ -265,9 +263,9 @@ export default function BackgroundSelector({
                       parseFloat(e.target.value)
                     )
                   }
-                  className="flex-1"
+                  className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                 />
-                <span className="text-xs w-16 text-center font-mono bg-muted px-2 py-1 rounded">
+                <span className="text-xs w-12 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                   {colors[idx].toFixed(2)}
                 </span>
               </div>
@@ -282,12 +280,12 @@ export default function BackgroundSelector({
       : [currentBackground.color];
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Colors</Label>
+          <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Colors</Label>
           {currentBackground.type === "solid" && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-gray-700 dark:text-gray-300">
                 {colors.length === 1
                   ? "Solid"
                   : `${colors.length} Color Gradient`}
@@ -297,32 +295,31 @@ export default function BackgroundSelector({
                   variant="outline"
                   size="sm"
                   onClick={addGradientColor}
-                  className="h-7 w-7 p-0"
+                  className="h-6 w-6 p-0 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20 hover:bg-white/40 dark:hover:bg-gray-100/40"
                 >
-                  <Plus size={12} />
+                  <Plus size={10} />
                 </Button>
               )}
             </div>
           )}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {colors.map((color, idx) => (
-            <div key={idx} className="flex items-center gap-3">
+            <div key={idx} className="flex items-center gap-2">
               <div className="relative">
                 <input
                   type="color"
                   value={color}
                   onChange={(e) => handleColorChange(idx, e.target.value)}
-                  className="w-12 h-10 rounded-lg border-2 border-gray-200 dark:border-gray-700 cursor-pointer transition-all hover:border-gray-300 dark:hover:border-gray-600"
+                  className="w-8 h-8 rounded border border-white/30 dark:border-gray-300/30 cursor-pointer bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm"
                 />
-                <div className="absolute inset-0 rounded-lg ring-2 ring-primary/20 opacity-0 hover:opacity-100 transition-opacity pointer-events-none" />
               </div>
               <Input
                 type="text"
                 value={color}
                 onChange={(e) => handleColorChange(idx, e.target.value)}
-                className="text-xs font-mono flex-1"
+                className="text-xs font-mono flex-1 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 placeholder="#000000"
               />
               {currentBackground.type === "solid" && colors.length > 1 && (
@@ -330,9 +327,9 @@ export default function BackgroundSelector({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeGradientColor(idx)}
-                  className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-100/40 dark:hover:bg-red-900/30"
                 >
-                  <Minus size={12} />
+                  <Minus size={10} />
                 </Button>
               )}
             </div>
@@ -343,9 +340,9 @@ export default function BackgroundSelector({
         {currentBackground.type === "solid" &&
           Array.isArray(currentBackground.color) &&
           currentBackground.color.length > 1 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
               <div>
-                <Label className="text-xs font-medium">Gradient Type</Label>
+                <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Gradient Type</Label>
                 <Select
                   value={currentBackground.gradientType || "linear"}
                   onValueChange={(value) =>
@@ -354,7 +351,7 @@ export default function BackgroundSelector({
                     })
                   }
                 >
-                  <SelectTrigger className="mt-2">
+                  <SelectTrigger className="mt-1 h-8 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -366,8 +363,8 @@ export default function BackgroundSelector({
 
               {currentBackground.gradientType !== "radial" && (
                 <div>
-                  <Label className="text-xs font-medium">Direction</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Direction</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -379,9 +376,9 @@ export default function BackgroundSelector({
                           gradientDirection: parseInt(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {currentBackground.gradientDirection || 135}°
                     </span>
                   </div>
@@ -394,34 +391,33 @@ export default function BackgroundSelector({
   };
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* Background Type Selection */}
-      <div className="space-y-4">
-        <Label className="text-sm font-medium flex items-center gap-2">
-          <Palette size={16} />
+    <div className={`space-y-4 ${className}`}>
+      {/* Background Type Selection - Perfect Glass Effect */}
+      <div className="space-y-3">
+        <Label className="text-xs font-medium flex items-center gap-2 text-gray-900 dark:text-gray-100">
+          <Palette size={14} />
           Background Style
         </Label>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {backgroundTypes.map((bg) => (
             <Button
               key={bg.type}
               variant={
                 currentBackground.type === bg.type ? "default" : "outline"
               }
-              className="h-auto p-4 flex flex-col items-center gap-2 text-xs hover:scale-105 transition-all duration-200 relative overflow-hidden group"
+              className="h-auto p-3 flex flex-col items-center gap-1 text-xs hover:scale-105 transition-all duration-200 bg-white/20 dark:bg-gray-100/20 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 hover:bg-white/30 dark:hover:bg-gray-100/30"
               onClick={() =>
                 handleBackgroundTypeChange(
                   bg.type as BackgroundSettings["type"]
                 )
               }
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <span className="text-xl relative z-10">{bg.icon}</span>
-              <span className="font-medium relative z-10 text-center leading-tight">
+              <span className="text-base">{bg.icon}</span>
+              <span className="font-medium text-center leading-tight text-gray-900 dark:text-gray-100">
                 {bg.name}
               </span>
-              <span className="text-xs text-muted-foreground relative z-10 text-center">
+              <span className="text-xs text-gray-700 dark:text-gray-300 text-center">
                 {bg.category}
               </span>
             </Button>
@@ -429,122 +425,113 @@ export default function BackgroundSelector({
         </div>
       </div>
 
-      {/* Enhanced Gradient Presets Section */}
+      {/* Enhanced Gradient Presets Section - Perfect Glass Effect */}
       {showPresets && currentBackground.type === "solid" && (
-        <Card className="shadow-lg border-primary/20 dark:border-primary/30">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg flex items-center gap-3">
-              <Sparkles size={18} />
-              Gradient Presets
-              <Badge variant="secondary" className="ml-auto">
-                {filteredPresets.length} presets
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Enhanced Search and Filter Controls */}
-            <div className="flex flex-col gap-4 sm:flex-row">
-              <div className="relative flex-1">
-                <Search
-                  size={16}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                />
-                <Input
-                  placeholder="Search gradients..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-10 text-sm"
-                />
-              </div>
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-full sm:w-40 h-10">
-                  <Filter size={16} className="mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="bg-white/20 dark:bg-gray-100/20 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-4 shadow-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles size={16} className="text-primary" />
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Gradient Presets</h3>
+            <Badge variant="secondary" className="ml-auto text-xs bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20">
+              {filteredPresets.length}
+            </Badge>
+          </div>
+
+          {/* Mobile-Optimized Search and Filter */}
+          <div className="flex flex-col gap-3 sm:flex-row mb-4">
+            <div className="relative flex-1">
+              <Search
+                size={14}
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-600 dark:text-gray-400"
+              />
+              <Input
+                placeholder="Search gradients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 h-8 text-xs bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"
+              />
             </div>
+            <Select
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
+              <SelectTrigger className="w-full sm:w-32 h-8 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30">
+                <Filter size={14} className="mr-1" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            {/* Enhanced Larger Gradient Cubes with Responsive Grid */}
-            <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border dark:border-gray-800">
-              <div className="grid grid-cols-4  sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-14 2xl:grid-cols-16 gap-3 max-h-80 overflow-y-auto custom-scrollbar">
-                {filteredPresets.map((preset) => {
-                  const gradientStyle =
-                    preset.gradientType === "radial"
-                      ? `radial-gradient(circle, ${preset.colors.join(", ")})`
-                      : `linear-gradient(${
-                          preset.gradientDirection || 135
-                        }deg, ${preset.colors.join(", ")})`;
+          {/* Mobile-Optimized Gradient Grid */}
+          <div className="p-3 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm rounded-lg border border-white/20 dark:border-gray-300/20">
+            <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2 max-h-48 overflow-y-auto custom-scrollbar">
+              {filteredPresets.map((preset) => {
+                const gradientStyle =
+                  preset.gradientType === "radial"
+                    ? `radial-gradient(circle, ${preset.colors.join(", ")})`
+                    : `linear-gradient(${
+                        preset.gradientDirection || 135
+                      }deg, ${preset.colors.join(", ")})`;
 
-                  return (
-                    <button
-                      key={preset.id}
-                      onClick={() => handlePresetSelect(preset)}
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full shadow-md hover:shadow-xl hover:scale-110 transition-all duration-300 border-1 border-gray-200/60 dark:border-gray-700/60 hover:border-primary/60 dark:hover:border-primary/60 cursor-pointer group relative overflow-hidden"
-                      style={{ background: gradientStyle }}
-                      title={preset.name}
-                    >
-                      {/* Enhanced Hover Overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 rounded-lg flex items-center justify-center">
-                        <div className="w-2 h-2 bg-white/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-                      {/* Ring Effect on Hover */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-primary/50 to-primary/30 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-                    </button>
-                  );
-                })}
-              </div>
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => handlePresetSelect(preset)}
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg shadow hover:shadow-lg hover:scale-110 transition-all duration-300 border border-white/40 dark:border-gray-300/40 hover:border-primary/60 cursor-pointer group"
+                    style={{ background: gradientStyle }}
+                    title={preset.name}
+                  >
+                    <div className="w-1 h-1 bg-white/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 mx-auto mt-1" />
+                  </button>
+                );
+              })}
             </div>
+          </div>
 
-            {filteredPresets.length === 0 && (
-              <div className="text-center py-12">
-                <Sparkles className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-sm text-muted-foreground font-medium">
-                  No presets found
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Try adjusting your search or filter
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {filteredPresets.length === 0 && (
+            <div className="text-center py-8">
+              <Sparkles className="mx-auto h-8 w-8 text-gray-600 dark:text-gray-400 mb-2" />
+              <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">
+                No presets found
+              </p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                Try adjusting your search or filter
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
-      {/* Enhanced Settings Card */}
-      <Card className="shadow-lg dark:shadow-xl">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Settings2 size={18} />
-            Background Settings
-            <span className="text-sm font-normal text-muted-foreground ml-auto">
-              {
-                backgroundTypes.find((bg) => bg.type === currentBackground.type)
-                  ?.name
-              }
-            </span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      {/* Mobile-Optimized Settings Card - Perfect Glass Effect */}
+      <div className="bg-white/20 dark:bg-gray-100/20 backdrop-blur-xl border border-white/20 dark:border-gray-300/20 rounded-lg p-4 shadow-lg">
+        <div className="flex items-center gap-2 mb-4">
+          <Settings2 size={16} className="text-primary" />
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Background Settings</h3>
+          <span className="text-xs font-normal text-gray-700 dark:text-gray-300 ml-auto">
+            {
+              backgroundTypes.find((bg) => bg.type === currentBackground.type)
+                ?.name
+            }
+          </span>
+        </div>
+
+        <div className="space-y-4">
           {/* Color Controls */}
           {renderColorControls()}
 
-          {/* Common Animation Controls */}
+          {/* Common Animation Controls - Perfect Glass Effect */}
           {currentBackground.type !== "solid" && (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
                 <div>
-                  <Label className="text-sm font-medium">Animation Speed</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Animation Speed</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0.1"
@@ -554,17 +541,17 @@ export default function BackgroundSelector({
                       onChange={(e) =>
                         updateBackground({ speed: parseFloat(e.target.value) })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-16 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-12 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.speed || 1).toFixed(1)}x
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Intensity</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Intensity</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -576,18 +563,18 @@ export default function BackgroundSelector({
                           intensity: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-16 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-12 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.intensity || 1).toFixed(1)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 pt-2">
-                <MousePointer size={14} className="text-muted-foreground" />
-                <Label className="text-sm font-medium">Mouse Interaction</Label>
+              <div className="flex items-center gap-2 pt-1">
+                <MousePointer size={12} className="text-gray-600 dark:text-gray-400" />
+                <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Mouse Interaction</Label>
                 <Switch
                   checked={currentBackground.mouseInteraction || false}
                   onCheckedChange={(checked) =>
@@ -598,16 +585,16 @@ export default function BackgroundSelector({
             </>
           )}
 
-          {/* Type-Specific Advanced Controls */}
+          {/* Type-Specific Advanced Controls - Perfect Glass Effect */}
           {currentBackground.type === "iridescence" && (
-            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
-              <Label className="text-sm font-medium text-primary">
+            <div className="space-y-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+              <Label className="text-xs font-medium text-primary">
                 Iridescence Settings
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs font-medium">Amplitude</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Amplitude</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -619,17 +606,17 @@ export default function BackgroundSelector({
                           amplitude: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.amplitude || 0.1).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <MousePointer size={14} className="text-muted-foreground" />
-                  <Label className="text-sm font-medium">Mouse React</Label>
+                <div className="flex items-center gap-2">
+                  <MousePointer size={12} className="text-gray-600 dark:text-gray-400" />
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Mouse React</Label>
                   <Switch
                     checked={currentBackground.mouseReact || false}
                     onCheckedChange={(checked) =>
@@ -639,8 +626,8 @@ export default function BackgroundSelector({
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Brightness</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Brightness</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -652,17 +639,17 @@ export default function BackgroundSelector({
                           brightness: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.brightness || 1).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Saturation</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Saturation</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -674,17 +661,17 @@ export default function BackgroundSelector({
                           saturation: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.saturation || 1).toFixed(2)}
                     </span>
                   </div>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <Label className="text-xs font-medium">Reflection</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Reflection</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -696,9 +683,9 @@ export default function BackgroundSelector({
                           reflection: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.reflection || 1).toFixed(2)}
                     </span>
                   </div>
@@ -708,20 +695,20 @@ export default function BackgroundSelector({
           )}
 
           {currentBackground.type === "hyperspeed" && (
-            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
-              <Label className="text-sm font-medium text-primary">
+            <div className="space-y-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+              <Label className="text-xs font-medium text-primary">
                 Hyperspeed Settings
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs font-medium">Preset Style</Label>
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Preset Style</Label>
                   <Select
                     value={currentBackground.preset || "one"}
                     onValueChange={(value) =>
                       updateBackground({ preset: value as any })
                     }
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className="mt-1 h-8 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -735,7 +722,7 @@ export default function BackgroundSelector({
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Distortion Type</Label>
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Distortion Type</Label>
                   <Select
                     value={
                       currentBackground.distortion || "turbulentDistortion"
@@ -744,7 +731,7 @@ export default function BackgroundSelector({
                       updateBackground({ distortion: value })
                     }
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className="mt-1 h-8 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -761,8 +748,8 @@ export default function BackgroundSelector({
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Road Width</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Road Width</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="5"
@@ -774,17 +761,17 @@ export default function BackgroundSelector({
                           roadWidth: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {currentBackground.roadWidth || 10}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Lanes Per Road</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Lanes Per Road</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="1"
@@ -796,9 +783,9 @@ export default function BackgroundSelector({
                           lanesPerRoad: parseInt(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {currentBackground.lanesPerRoad || 3}
                     </span>
                   </div>
@@ -808,14 +795,14 @@ export default function BackgroundSelector({
           )}
 
           {currentBackground.type === "silk" && (
-            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
-              <Label className="text-sm font-medium text-primary">
+            <div className="space-y-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+              <Label className="text-xs font-medium text-primary">
                 Silk Settings
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs font-medium">Scale</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Scale</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0.1"
@@ -825,17 +812,17 @@ export default function BackgroundSelector({
                       onChange={(e) =>
                         updateBackground({ scale: parseFloat(e.target.value) })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.scale || 1).toFixed(1)}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Noise Intensity</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Noise Intensity</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -847,19 +834,19 @@ export default function BackgroundSelector({
                           noiseIntensity: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.noiseIntensity || 1.5).toFixed(1)}
                     </span>
                   </div>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <Label className="text-xs font-medium">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">
                     Rotation (radians)
                   </Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="0"
@@ -871,9 +858,9 @@ export default function BackgroundSelector({
                           rotation: parseFloat(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {(currentBackground.rotation || 0).toFixed(1)}
                     </span>
                   </div>
@@ -883,20 +870,20 @@ export default function BackgroundSelector({
           )}
 
           {currentBackground.type === "squares" && (
-            <div className="space-y-4 pt-4 border-t dark:border-gray-700">
-              <Label className="text-sm font-medium text-primary">
+            <div className="space-y-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+              <Label className="text-xs font-medium text-primary">
                 Squares Settings
               </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-xs font-medium">Direction</Label>
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Direction</Label>
                   <Select
                     value={currentBackground.direction || "right"}
                     onValueChange={(value) =>
                       updateBackground({ direction: value as any })
                     }
                   >
-                    <SelectTrigger className="mt-2">
+                    <SelectTrigger className="mt-1 h-8 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -913,8 +900,8 @@ export default function BackgroundSelector({
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Square Size</Label>
-                  <div className="flex items-center gap-2 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Square Size</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <Input
                       type="range"
                       min="20"
@@ -926,24 +913,24 @@ export default function BackgroundSelector({
                           squareSize: parseInt(e.target.value),
                         })
                       }
-                      className="flex-1"
+                      className="flex-1 h-2 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/20 dark:border-gray-300/20"
                     />
-                    <span className="text-xs w-12 text-center font-mono bg-muted px-2 py-1 rounded">
+                    <span className="text-xs w-10 text-center font-mono bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm px-1 py-0.5 rounded border border-white/20 dark:border-gray-300/20 text-gray-900 dark:text-gray-100">
                       {currentBackground.squareSize || 40}px
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">Border Color</Label>
-                  <div className="flex items-center gap-3 mt-2">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">Border Color</Label>
+                  <div className="flex items-center gap-2 mt-1">
                     <input
                       type="color"
                       value={currentBackground.borderColor || "#999"}
                       onChange={(e) =>
                         updateBackground({ borderColor: e.target.value })
                       }
-                      className="w-12 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+                      className="w-8 h-6 rounded border border-white/30 dark:border-gray-300/30 cursor-pointer bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm"
                     />
                     <Input
                       type="text"
@@ -951,24 +938,24 @@ export default function BackgroundSelector({
                       onChange={(e) =>
                         updateBackground({ borderColor: e.target.value })
                       }
-                      className="text-xs font-mono flex-1"
+                      className="text-xs font-mono flex-1 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 text-gray-900 dark:text-gray-100"
                       placeholder="#999"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-xs font-medium">
+                  <Label className="text-xs font-medium text-gray-900 dark:text-gray-100">
                     Hover Fill Color
                   </Label>
-                  <div className="flex items-center gap-3 mt-2">
+                  <div className="flex items-center gap-2 mt-1">
                     <input
                       type="color"
                       value={currentBackground.hoverFillColor || "#222"}
                       onChange={(e) =>
                         updateBackground({ hoverFillColor: e.target.value })
                       }
-                      className="w-12 h-8 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+                      className="w-8 h-6 rounded border border-white/30 dark:border-gray-300/30 cursor-pointer bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm"
                     />
                     <Input
                       type="text"
@@ -976,7 +963,7 @@ export default function BackgroundSelector({
                       onChange={(e) =>
                         updateBackground({ hoverFillColor: e.target.value })
                       }
-                      className="text-xs font-mono flex-1"
+                      className="text-xs font-mono flex-1 bg-white/30 dark:bg-gray-100/30 backdrop-blur-sm border border-white/30 dark:border-gray-300/30 text-gray-900 dark:text-gray-100"
                       placeholder="#222"
                     />
                   </div>
@@ -984,20 +971,20 @@ export default function BackgroundSelector({
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Custom Scrollbar Styles */}
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
+          width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background: rgba(156, 163, 175, 0.4);
-          border-radius: 3px;
+          border-radius: 2px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(156, 163, 175, 0.6);
