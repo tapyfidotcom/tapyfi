@@ -123,7 +123,7 @@ export default function FileUpload({
             type="button"
             variant="destructive"
             size="sm"
-            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+            className="absolute -top-2 -right-2 h-6 w-6 rounded-full py-2"
             onClick={handleRemoveImage}
             disabled={uploading || disabled}
           >
@@ -142,18 +142,18 @@ export default function FileUpload({
         size="sm"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading || disabled}
-        className="w-full"
+        className="w-full min-w-0 flex items-center justify-center"
       >
         {uploading ? (
-          <>
-            <Loader2 size={16} className="mr-2 animate-spin" />
-            Uploading...
-          </>
+          <div className="flex items-center justify-center gap-2 truncate">
+            <Loader2 size={16} className="animate-spin flex-shrink-0" />
+            <span className="truncate">Uploading...</span>
+          </div>
         ) : (
-          <>
-            <Upload size={16} className="mr-2" />
-            {currentImage ? 'Change Image' : 'Upload Image'}
-          </>
+          <div className="flex items-center justify-center gap-2 truncate">
+            <Upload size={16} className="flex-shrink-0 sm:hidden" />
+            <span className="truncate">{currentImage ? 'Change Image' : 'Upload Image'}</span>
+          </div>
         )}
       </Button>
 

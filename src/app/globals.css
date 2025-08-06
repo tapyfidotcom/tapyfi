@@ -110,13 +110,13 @@ html.dark {
 
 .cl-headerSubtitle {
   color: hsl(var(--muted-foreground)) !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: 'Montserrt', sans-serif !important;
 }
 
 .cl-socialButtonsBlockButton {
   border: 1px solid hsl(var(--border)) !important;
-  background-color: hsl(var(--background)) !important;
-  color: hsl(var(--foreground)) !important;
+  background-color: rgb(86, 86, 86) !important;
+  color: white !important;
   font-family: 'Montserrat', sans-serif !important;
 }
 
@@ -140,7 +140,7 @@ html.dark {
   font-weight: 500 !important;
 }
 
-.cl-input, input {
+/* .cl-input, input {
   height: 40px !important;
   box-shadow: none !important;
   border: 1px solid hsl(var(--border)) !important;
@@ -148,7 +148,7 @@ html.dark {
   color: hsl(var(--foreground)) !important;
   border-radius: var(--radius) !important;
   font-family: 'Montserrat', sans-serif !important;
-}
+} */
 
 .cl-input:focus, input:focus {
   border-color: hsl(var(--primary)) !important;
@@ -166,6 +166,13 @@ html.dark {
   transition: all 0.2s ease-in-out !important;
 }
 
+.cl-formResendCodeLink{
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.cl-internal-1a2ncmh{
+  background-color: grey;
+}
 .cl-formButtonPrimary:hover {
   background-color: hsl(var(--primary) / 0.9) !important;
   transform: translateY(-1px) !important;
